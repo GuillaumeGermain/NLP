@@ -60,12 +60,11 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.20, rand
 
 
 
-# Feature Scaling
-from sklearn.preprocessing import StandardScaler
-sc_X = StandardScaler()
-X_train = sc_X.fit_transform(X_train.astype(float))
-X_test = sc_X.transform(X_test.astype(float))
-
+## Feature Scaling
+#from sklearn.preprocessing import StandardScaler
+#sc_X = StandardScaler()
+#X_train = sc_X.fit_transform(X_train.astype(float))
+#X_test = sc_X.transform(X_test.astype(float))
 
 
 
