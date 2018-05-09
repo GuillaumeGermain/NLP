@@ -20,5 +20,6 @@ Based on an exercise of ML A-Z on Udemy (Superdatascience)
 ![NLP Bag of Words Results](nlp_bag_of_words_results.png)
 
 ## Coming soon
-Almost 80% accuracy after training on a sample of 800 bag of words, not taking into account the order of words, is surprisingly good, but still that'd be nice to achieve better, 90% if possible.
-Let's turbo charge it and train using a bigget dataset, like this one on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews"), with additional 82000 reviews
+Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!! Specially with a bag of words not taking into account the order of words in each review.
+Now, that'd be nice to achieve a better accuracy, like 90%.
+Let's turbocharge it and train on a bigget dataset of 82000 reviews, like this one on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
