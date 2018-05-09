@@ -1,5 +1,5 @@
 # NLP Bag of Words
-## processed with traditional ML algorithms
+## Fun with traditional ML algorithms
 
 1000 restaurant customer reviews are classified as 1 or 0, "Liked" or "Didn't like".
 Reviews are trimmed, removing most common words, and common words/verbs (Like, Liked, Liking) are grouped together to get a more consistent result ("stemming")
