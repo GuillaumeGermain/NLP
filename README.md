@@ -17,7 +17,11 @@ To review the results, open the df_results after the script has run
 
 Based on an exercise of ML A-Z on Udemy (Superdatascience)
 
+## Surprising results
+The SVM algorithm with RBF kernel is both best and worst in class. With feature scaling, it achieves the best result with 79% accuracy. Without scaling, it's broken and always predicts 0 (Didn't like) values, as shown in the confusion matrix.
+
 ![NLP Bag of Words Results](nlp_bag_of_words_results.png)
+
 
 ## Coming soon
 Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!! Specially with a bag of words not taking into account the order of words in each review.
