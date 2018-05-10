@@ -170,7 +170,7 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
     
     if verbose:
         print("METHODS:", " ".join(methods), "\nSCALING:", scales, "\n")
-        print("METHOD".ljust(20, " "), "SCALED".ljust(10, " "), "F1".ljust(10, " "), "ACCURACY".ljust(10, " "), "PROCESSING_TIME")
+        print("METHOD".ljust(20, " "), "SCALED".ljust(10, " "), "ACCURACY".ljust(10, " "), "F1".ljust(10, " "), "PROCESSING_TIME")
 
     df_results = pd.DataFrame()
     
@@ -183,7 +183,7 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
             X_test = sc_X.transform(X_test.astype(float))
             if verbose:
                 print("\nSCALING DONE")
-    
+        
         for method in methods:
             start_time = process_time()
             # Logistic Regression
@@ -231,10 +231,10 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
             df_results = df_results.append(pd.DataFrame(dict_results))
             
             if verbose:
-                print(method.lower().ljust(20, " "), str(scaled).ljust(10, " "), str(f1).ljust(10, " "), str(accuracy).ljust(10, " "), processing_time)
+                print(method.lower().ljust(20, " "), str(scaled).ljust(10, " "), str(accuracy).ljust(10, " "), str(f1).ljust(10, " "), processing_time)
     
-    df_results = df_results.sort_values(by=('F1'), ascending=False)
-    df_results = df_results[["Method", "Scaled", "F1", "Accuracy", "Precision",
+    df_results = df_results.sort_values(by=('Accuracy'), ascending=False)
+    df_results = df_results[["Method", "Scaled", "Accuracy", "F1", "Precision",
                              "Recall", "ConfusionMatrix", "ProcessingTime"]]
 
     if verbose:
@@ -257,6 +257,3 @@ y_test = y[:TEST_SIZE]
 #y_train = y_train[:500]
 
 df_results = ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, True])
-
-
-
