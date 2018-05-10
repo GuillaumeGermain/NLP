@@ -125,6 +125,8 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
             X_test = sc_X.transform(X_test.astype(float))
     
         for method in methods:
+            start_time = process_time()
+            
             # Logistic Regression
             if method == "logistic_regression":
                 from sklearn.linear_model import LogisticRegression
@@ -162,16 +164,21 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
             precision = precision_score(y_test, y_pred)
             recall = recall_score(y_test, y_pred)
             cm = confusion_matrix(y_test, y_pred)
+            processing_time = process_time() - start_time
             
             dict_results = {"Method" : [method], "Scaled": scaled, 
                             "Accuracy": accuracy, "Precision" : [precision], "Recall" : [recall], "F1" : [f1],
-                            "CM": str(cm)}
+                            "ConfusionMatrix" : str(cm), "ProcessingTime" : processing_time}
             df_results = df_results.append(pd.DataFrame(dict_results))
-            df_results = df_results.sort_values(by=('F1'), ascending=False)
+    df_results = df_results.sort_values(by=('F1'), ascending=False)
+    df_results = df_results[["Method","Scaled","F1", "Accuracy", "Precision", "Recall", "ConfusionMatrix", "ProcessingTime"]]
     return df_results
 
-df_results = ml_loop(X_train, y_train, X_test, y_test)
-df_results = df_results[["Method","Scaled","F1", "Accuracy", "Precision", "Recall", "CM"]]
+
+from time import process_time
+start = process_time()
+df_results = ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, True])
+print("TOTAL TIME:", process_time() - start)
 
 # Now have a look at the df_results dataframe to get the comparison
 #TODO display a nice table with matplotlib - https://matplotlib.org/gallery/misc/table_demo.html#sphx-glr-gallery-misc-table-demo-py
