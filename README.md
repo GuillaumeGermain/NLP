@@ -29,9 +29,7 @@ Now, that'd be nice to achieve a better accuracy, like 90%.
 So my plan was to turbocharge it and train on a bigget dataset of 82000 reviews, like this one on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
 As it turned out, it was not a great idea! (but I learned a lot on the way)
 
-![Script 2](nlp2.py)
-
-The second dataset, with roughly 82000 lines, has scores between 1 and 5.
+The second dataset, had roughly 82000 lines, and scores between 1 and 5.
 The initial idea, was to set 1-2 values to 0, and 4-5 to 1. 3 are discarded as they can't really be considered as "Liked" or not.
 Doing so, it was quite an interesting exercise trying different configurations (more words in the vocabulary, or less), different sizes
 
@@ -71,25 +69,24 @@ TOTAL CPU TIME: 122.8
 ## Lessons learned
 
 ### Test on the right dataset!
-An initial mistake was to train and test the classifiers on sets which were a mix of both datasets. This lead to very surprisingly good results!
-But it was not representative of the performance on the initial test set (what actually really mattered).
+My initial mistake was to train and test the classifiers on a mix of both datasets. This lead to very surprisingly good results!
+But it was not representative of the performance on the initial test set, what actually really mattered.
 
 ### Sparsity is a problem
-The matrix after tokenization is definitely very sparse. The matrix size is HUGE compared to the information in it. The information density is very low.
+The matrix after tokenization is definitely very sparse. The matrix size is HUGE compared to the information it contains. The information density is very low.
 This is a serious performance problem, as each cell has to be processed, whether it contains one more dumb 0 or not.
 Applying feature scaling changed the 0s by many mean values, but the information density was still the same (appalling).
 
 ### System Performance 
 The matrix size is basically training set size * vocabulary size. So it could vary from 1000 x 1000 to 50'000 x 18'000 depending on encoding choices.
 Scripts happened to run quite long. So I added printing to get intermediate results during the processing.
-After many runs, it got nicer and nicer as it was my main tool for evaluating results.
+After many runs, it got nicer and nicer as it was my main tool to evaluate results.
 
-First, running with around 18K words and not so small datasets, it took around 25 minutes to process all the methods
+First, running with around 18K words and not so small datasets, it took around 25 minutes to process all the methods.
 Then I started logging the times (a very interesting information BTW) and printing results after each new prediction.
 
-Unfortunately, the system performance could not be improved, as I was mainly using standard fitting functions of traditional algorithms. 
-Trying to writing them in PYthon was not an option (Python per se is awfully slow), and their implementation in C/C++ was definitively better than what I could have dome myself.
-My options were to play
+Unfortunately, the system performance could not be improved, as I was mainly using standard fitting functions of traditional algorithms.
+Trying to writing them in Python was not an option (Python per se is awfully slow), and their implementation in C/C++ was definitively better than what I could have dome myself.
 
 ### Experiment conclusions
 After many tries, I came to the conclusion that using this new dataset was doing more harm than good.
