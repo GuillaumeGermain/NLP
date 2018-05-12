@@ -21,6 +21,8 @@ Based on an exercise of ML A-Z on Udemy (Superdatascience)
 The SVM algorithm with RBF kernel is both best and worst in class. With feature scaling, it achieves the best result with 79% accuracy. Without scaling, it's broken and always predicts 0 (Didn't like) values, as shown in the confusion matrix.
 Some methods work better on a scaled matrix, other prefer the unscaled version.
 ![NLP Bag of Words Results](nlp_bag_of_words_results.png)
+
+## Conclusion
 Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!! Specially with a bag of words not taking into account the order of words in each review.
 Now, that'd be nice to achieve a better accuracy, like 90%.
 
@@ -116,6 +118,9 @@ After quite a few tries and improvmements, scripts are now a bit cleaner, sparse
 4 algorithms have been long-listed, from which 2 algorithms have been retained:
 - naive_bayes, svm_sigmoid due to their initial good performance on the original dataset
 - logistic_regression, svm_linear as they showed quite some correct performance after training on the second bigger dataset
+At the end, the best algorithms on the initial dataset, were pretty average on the new dataset. Logistic regression and SVM linear showed the best results, depending on the training dataset and vocabulary sizes. Logistic Regression is by far the fastest, the execution time is always extremely fast (most likely logarithmic or linear + a bias, this should be checked).
+Scaling features affects a bit the results, but not in an extreme way. Overall, the execution is slower on the scaled vector.
+The SVM linear seems to ahve a O(n3) asymptotic complexity.
 
 
 ## TODO
