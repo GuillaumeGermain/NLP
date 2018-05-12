@@ -113,8 +113,7 @@ The dataset quality counts a lot!
 I first used F1 score to select the best classifiers. As the class distributions are quite balanced (kind of 40-60%), the accuracy is actually the good one to take.
 
 ## TODO
-- clean up the code. The NLP 2 script had many small improvements, to reuse in the first one. 
-- build a .py file for utility functions
+- clean up the code after a lot of small changes.
 
 ## Next steps for improvement
 Basically, potential tracks for improvements would be
