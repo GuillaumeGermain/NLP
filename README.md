@@ -21,11 +21,10 @@ Based on an exercise of ML A-Z on Udemy (Superdatascience)
 The SVM algorithm with RBF kernel is both best and worst in class. With feature scaling, it achieves the best result with 79% accuracy. Without scaling, it's broken and always predicts 0 (Didn't like) values, as shown in the confusion matrix.
 Some methods work better on a scaled matrix, other prefer the unscaled version.
 ![NLP Bag of Words Results](nlp_bag_of_words_results.png)
-
-
-## Next step!
 Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!! Specially with a bag of words not taking into account the order of words in each review.
 Now, that'd be nice to achieve a better accuracy, like 90%.
+
+## Phase 2: Next step!
 So my plan was to turbocharge it and train on a bigget dataset of 82000 reviews, like this one on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
 As it turned out, it was not a great idea! (but I learned a lot on the way)
 
@@ -111,6 +110,13 @@ The dataset quality counts a lot!
 
 ### Test evaluation
 I first used F1 score to select the best classifiers. As the class distributions are quite balanced (kind of 40-60%), the accuracy is actually the good one to take.
+
+## Phase 3
+After quite a few tries and improvmements, scripts are now a bit cleaner, sparse matrices are used for specific 
+4 algorithms have been long-listed, from which 2 algorithms have been retained:
+- naive_bayes, svm_sigmoid due to their initial good performance on the original dataset
+- logistic_regression, svm_linear as they showed quite some correct performance after training on the second bigger dataset
+
 
 ## TODO
 - clean up the code after a lot of small changes.
