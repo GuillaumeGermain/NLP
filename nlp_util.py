@@ -34,7 +34,7 @@ def build_corpus(text_series):
     return corpus
 
 
-def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, True], verbose=True):
+def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, True], verbose=True, verboseSVM = False):
     """
     Parameters:
     X_train, y_train, X_test, y_test: training and test sets
@@ -47,6 +47,9 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
     from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
     from time import process_time
     from math import ceil
+    from scipy import sparse
+    from scipy.sparse.csr import csr_matrix
+    #'scipy.sparse.csr.csr_matrix'
 
     start = process_time()
     X_train_len = X_train.shape[0]
@@ -74,14 +77,22 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
     
     for scaled in scales:
         if scaled:
-            
-            #TODO beware the sparse matrix
-            
-            
+            # The matrices have to be densified before scaling
+            re_dense = False
+            if isinstance(X_train, csr_matrix):
+                X_train = X_train.toarray() #todense()
+                X_test = X_test.toarray() #todense()
+                re_dense = True
+                
             # Feature Scaling
             sc_X = StandardScaler()
             X_train = sc_X.fit_transform(X_train.astype(float))
             X_test = sc_X.transform(X_test.astype(float))
+                
+            # Sparsify for processing
+            if re_dense:
+                X_train = sparse.csr_matrix(X_train)
+                X_test = sparse.csr_matrix(X_test)
             if verbose:
                 print("\nSCALING DONE")
         
@@ -91,33 +102,46 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
             if method == "logistic_regression":
                 from sklearn.linear_model import LogisticRegression
                 classifier = LogisticRegression(random_state=0)
+                classifier.fit(X_train, y_train)
             # K-NN
             if method == "k-nn":
                 from sklearn.neighbors import KNeighborsClassifier
                 classifier = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
+                classifier.fit(X_train, y_train)
             # Naive Bayes
             if method == "naive_bayes":
                 from sklearn.naive_bayes import GaussianNB
                 classifier = GaussianNB()
+                # Naive Bayes requires a non-sparse matrix type
+                re_dense = False
+                if isinstance(X_train, csr_matrix):
+                    X_train.toarray()
+                    re_dense = True
+                classifier.fit(X_train, y_train)
+                if re_dense:
+                    X_train = sparse.csr_matrix(X_train)
             # Random Forest 500
             if method == "random_forest":
                 from sklearn.ensemble import RandomForestClassifier
                 classifier = RandomForestClassifier(n_estimators=500, criterion='entropy', random_state=0)
-            
+                classifier.fit(X_train, y_train)
             # SVM methods
             from sklearn.svm import SVC
             # SVM linear
             if method == "svm_linear":
-                classifier = SVC(kernel='linear', random_state=0)
+                classifier = SVC(kernel='linear', verbose=verboseSVM, random_state=0)
+                classifier.fit(X_train, y_train)
             # SVM RBF
             if method == "svm_rbf":
-                classifier = SVC(kernel='rbf', random_state=0)
+                classifier = SVC(kernel='rbf', verbose=verboseSVM, random_state=0)
+                classifier.fit(X_train, y_train)
             # SVM Sigmoid
             if method == "svm_sigmoid":
-                classifier = SVC(kernel='sigmoid', random_state=0)
+                classifier = SVC(kernel='sigmoid', verbose=verboseSVM, random_state=0)
+                classifier.fit(X_train, y_train)
             
             # Predict with current method
-            classifier.fit(X_train, y_train)
+            
             y_pred = classifier.predict(X_test)
             f1 = round(f1_score(y_test, y_pred), 4)
             accuracy = round(accuracy_score(y_test, y_pred), 4)

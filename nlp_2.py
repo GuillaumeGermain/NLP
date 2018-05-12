@@ -69,27 +69,26 @@ dataset2.loc[dataset2['Liked'] < 3, 'Liked'] = 0
 dataset2.loc[dataset2['Liked'] > 3, 'Liked'] = 1
 
 
-# Compression
-
-import seaborn as sns
-
-sparse_dataset = dataset
-#dense_size = np.array(dataset).nbytes/1e6
-sparse_size = (sparse_dataset.data.nbytes + sparse_dataset.indptr.nbytes + sparse_dataset.indices.nbytes)/1e6
-
-sum(dataset.memory_usage())/ 1e6
-
-sns.barplot(['DENSE', 'SPARSE'], [dense_size, sparse_size])
-plt.ylabel('MB')
-plt.title('Compression')
+## Compression
+#import seaborn as sns
+#
+#sparse_dataset = dataset
+##dense_size = np.array(dataset).nbytes/1e6
+##sparse_size = (sparse_dataset.data.nbytes + sparse_dataset.indptr.nbytes + sparse_dataset.indices.nbytes)/1e6
+#
+##sum(dataset.memory_usage())/ 1e6
+#
+#sns.barplot(['DENSE', 'SPARSE'], [dense_size, sparse_size])
+#plt.ylabel('MB')
+#plt.title('Compression')
 
 
 
 
 # Append a part of the second biggest dataset to the main dataset
 TEST_SIZE = len(dataset)
-TRAIN_SIZE = 20000
-VOCAB_SIZE = 1000
+TRAIN_SIZE = len(dataset2) #10000
+VOCAB_SIZE = 2000
 
 
 dataset2 = dataset2[:TRAIN_SIZE]
