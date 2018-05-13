@@ -3,16 +3,6 @@
 The idea is to check how effective "traditional" ML methods work in a simple context.
 1000 restaurant customer reviews are classified as 1 or 0, "Liked" or "Didn't like".
 
-- Reviews are trimmed from most common words, the "stop words".
-- Linked words/verbs (Like, Liked, Liking, Likable, etc.) are grouped together to get a more consistent result: "stemming".
-- The resulting reviews are grouped into a rough "Bag of Words"
-- This bag of words is processed with "traditional" ML techniques (with and without feature scaling), to predict ratings (0/1) on a test set of 200 reviews.
-- Results are grouped in a table, sorted by descending accuracy. 
-
-The most accurate algorithms in this case are:
-1. SVM with sigmoid kernel and feature scaling
-2. Logistic regression with feature scaling
-3. SVM RBF with feature scaling
 
 To review the results, open the df_results after the script has run.
 
@@ -24,6 +14,15 @@ Based on an exercise of ML A-Z on Udemy (Superdatascience)
 * Naive Bayes
 * K-NN
 * logistic regression
+
+Process:
+
+- Reviews are trimmed from most common words, the famous "stop words".
+- "Stemming": related words/verbs are grouped together to get a more consistent result. E.g. all words Like, Likes, Liked, Liking, Likable, etc. become "Lik".
+- Resulting reviews are grouped into a rough "Bag of Words"
+- This bag of words is processed with "traditional" ML techniques (with and without feature scaling), to predict ratings (0/1) on a test set of 200 reviews.
+- Results are grouped in a table, sorted by descending accuracy. 
+
 ### Surprising results
 The SVM algorithm with Sigmoid kernel is both best and worst in class. With feature scaling, it achieves the best result with 79% accuracy. Without scaling, it's broken and always predicts 0 (Didn't like) values, as shown in the confusion matrix.
 Some methods work better on a scaled input, others prefer the unscaled version.
@@ -33,6 +32,12 @@ Some methods work better on a scaled input, others prefer the unscaled version.
 ### Phase 1 Conclusions
 Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!! Specially with such a rough "bag of words" method, not taking into account the words order.
 Now, that'd be nice to achieve a better accuracy, like 90%.
+
+The most accurate algorithms in this case are:
+1. SVM with sigmoid kernel and feature scaling
+2. Logistic regression with feature scaling
+3. SVM RBF with feature scaling
+
 
 ## Phase 2: Turbocharge the classifiers!
 To achieve a better performance with my classifiers, my plan was to train them on a bigget dataset.
