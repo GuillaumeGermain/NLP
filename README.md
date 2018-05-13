@@ -160,7 +160,7 @@ END ML_LOOP
 TOTAL CPU TIME: 3389.59
 ```
 
-At this point:
+### At this point:
  
 - K-NN accuracy is getting worse with more data
 - Naive Bayes still has a minor improvement, but is super-fast then cheap to keep
@@ -182,8 +182,9 @@ I first trained and tested the classifiers on a mix of both datasets. This lead 
 Second, I used the F1 score as main metric, accuracy turned out to be a better metric.
 
 ### Sparsity is a real problem
-The matrix after tokenization is definitely very sparse. The matrix size is HUGE compared to the information it contains. The information density is very low.
-This can lead to a longer computation time, as each cell has to be processed, whether it contains a dumb 0 or not.
+The matrix after tokenization is definitely very sparse. The information density is very low.
+The matrix size is HUGE compared to the information it contains. 
+This leads to a longer computation time, as each cell has to be processed, whether it contains a dumb 0 or not.
 Applying feature scaling changed the 0s by many mean values, but the information density was still the same (appalling).
 
 ### Computation Performance 
@@ -196,8 +197,8 @@ I also logged the times, which happened to be a very useful information.
 
 It was quite interesting to compare the evolution of the time of specific classifiers, depending on the input size.
 SVM RBF and SVM Sigmoid seemed to be quadratic o(n2), K-NN linear, logistic regression and naive Bayes lightning fast whatever the input.
-I didn't plan to really improve the system performance, as I was mainly using standard parameters of these traditional algorithms.
-Trying to writing them in Python was not an option (Python per se is awfully slow), and their implementation in C/C++ was definitively better than what I could have done myself.
+I didn't plan to really improve their speed, as I was mainly using standard parameters of these traditional algorithms.
+Trying to writing them in Python was not an option, and their implementation in C/C++ was definitively better than what I could have done myself.
 
 ### Evaluation metric
 At first I used F1 score to select the best classifiers. 
@@ -216,44 +217,46 @@ Basically, I trained my classifiers to shoot in a target (training set), and the
 So the naive assumption that training ML classifiers on a bigger dataset would automatically bring better results, was indeed very naive.
 Dataset quality matters!
 
-## Phase 2 conclusions
+### Phase 2 conclusions
 Overall, I came to the conclusion that using this new dataset was not so great for training:
 - In the best cases, both accuracy and F1 score very unsatisfying, specially taking into account the much higher training set size and longer processing time.
 The performance was much better when training classifiers with only a part of the initial smaller dataset!
 - One interesting fact, one of the most simple approaches, logistic regression, was always the fastest and generally with the best performance (most runs in a fraction of a second, 1000 times faster than others).
-- Naive Bayes also had a decent result, and it was also fast compared to other algorithms. It makes sense to use it considering its performance.
+- Naive Bayes could also have had a decent result, and it was very fast compared to other algorithms. It makes sense to use it in some cases considering its performance.
 
 ## Phase 3: More research
-Still somehow unsatisfied with these results, I wanted to find out if I could get more decent results, even though it was not the best one for training my classifiers.
+Still somehow unsatisfied with these results, I wanted to find out if I could get better results, even though the chosen dataset was not the best one to train my classifiers.
 I played a bit with the sparse matrix format for specific algorithms (except Naive Bayes which accepts only standard numpy matrices).
-All in all, most of the best algorithms on the initial dataset didn't perform well when trained on the new dataset.
+All in all, most algorithms didn't perform well when trained on the new dataset.
 
-Logistic regression and SVM linear showed clearly the best results, depending on the training dataset and vocabulary sizes.
-Logistic Regression is very interesting in this regards: by far the fastest, most of the time below a second, while others could take from 5-30 minutes to run, up to an eternity for SVM linear.
+Logistic regression (scaled) and SVM linear (scaled) showed clearly the best results, depending on the training dataset and vocabulary sizes.
+Logistic Regression was by far the fastest of both.
 
-At the end I automated the tests with different settings (training set size and vocabulary size), to compare results.
-So they can be called very quickly in a new context (new project or Hackathon). One case could be Spam Recognition, where Naive Bayes usually shines.
+At the end I automated the tests with different settings (training set size and vocabulary size), so they can be called very quickly in a new context (new project or Hackathon).
+One case could be Spam Recognition, where Naive Bayes usually shines.
 
-The results have been retrofitted in the previous parts of what now looks like a research blog.
+I used this to test logistic regression with many different configurations, vocabulary size and training set size.
 
 ### Asymptotic complexity:
-Logistic regression is by far the most performant, the duration is most likely logarithmic-like (doubling the size barely increases the execution time).
+Logistic regression complexity is most likely logarithmic-like as doubling the size seems to translate to a constant increase of execution time.
 
 SVM linear computation time is... very bad: from 10'000 to 20'000 lines, execution jumps from 25 to 321s.
 This SVM linear provided by skikit seems to have beetween O(n3) and o(n4) asymptotic complexity.
 I could not use it on even half of the whole second dataset because it was never completing.
-It was a pity to discard it as it had regularly a better performance than logistic regression.
+It was a pity to discard it as it had regularly a better accuracy than logistic regression.
 I'd still would like to find out, up to what point SVM linear still makes sense, and find its optimal performance.
 
-Side remark: the execution is generally slower when performing over a scaled input.
+The execution is generally slower when performing over a scaled input.
 
 
 # Final conclusions
-The best results I could get was 74.2% with Logistic regression, with 35'000 observations, scaling and a vocabulary of 4500.
-Overall, increasing the training dataset over a certain point seems to slightly decrease performance.
+Logistic regression is by far the best combination of accuracy and running time. 
+The best results I could get was 74.2%, with 35'000 observations, scaling and a vocabulary of 4500.
+
+Overall, increasing the training dataset over a certain point seems to slightly decrease accuracy.
 It suggests overfitting or dancing around a local optimum (as I would see it with a neural network and gradient descent).
 
-- The winner in this specific context is Logistic Regression algorithm, though its performance is worse than in the first phase.
+- The winner in this specific context is Logistic Regression algorithm, though its accuracy is worse than in the first phase.
 It is actually the second best, but by far the fastest.
 SVM linear seems to be overall slightly better but its full potential cannot be used due to its awful computation time, which prevents training it on bigger datasets.
 - All other algorithms, SVM RBF and SVM Sigmoid or the usually "hassle-free" Random Forests, and Naive Bayes, have a pretty bad performance, below 55%, maybe 60% at best with training/vocabulary sizes.
@@ -264,7 +267,6 @@ So I keep both, though it significantly slows down the processing.
 - At the end there is here a second level problem: running scripts over these 3 independent factors: vocabulary size, training size, feature scaling yes/no, and finding out if a pattern can be found.
 Are there one or several local optima, an recommended size of vocabulary, where does feature scaling really help?
 This would actually be very useful.
-- The best performance was not as expected. On the point of view of the logistic regression, the accuracy actually increased from 64% to 74% after training on a new dataset.
 
 ## TODO
 - Store all results from different settings in a single dataframe, including the run settings (train size, vocab size, scaling or not). 
@@ -283,5 +285,5 @@ Basically, potential tracks for improvements I see are:
 5. Of course the RNN NLP way: a simple recurrent neural network (RNN), next step with GRU cells.
 6. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
 
-One very interesting thing to do, but most likely not possible, would be to use a language encoding vector (as common in Recurrent Neural Networks).
+One very interesting thing to do, most likely not possible, would be to use a language encoding vector (e.g. Glove), as commonly used with NLP Recurrent Neural Networks.
 So a sparse one-hot vector could be represented by a much smaller vector and the computation time would be much better.

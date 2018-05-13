@@ -39,27 +39,26 @@ TEST_SIZE = len(dataset)
 
 
 ### LOOP OVER THIS
+# Pre-cabled loops over many configurations to use directly
+
 #train_sizes = [1000, 2000, 5000, 10000, 15000, 20000, 30000, len(dataset2)]
 #vocab_sizes = [500, 800, 1000, 1500, 1800, 2000, 2200]
 
-# Pre-cabled loops over many configurations to use directly
-# In this case, only logistic regression (very short time, enables many tries in a short time)
 train_sizes = [35000, 40000]
 vocab_sizes = [4500, 5000, 6000]
 
 # Limit to specific algorithms
-#methods = ["all"] # try all algos
+#methods = None # try all algos
 methods = ["logistic_regression",
            #"naive_bayes",
            #"svm_linear",
            #"svm_sigmoid"
            ]
-#scales = [False, True]
 
 
-methods = None
-train_sizes = [15000]
-vocab_sizes = [1500]
+methods = ["naive_bayes"]
+train_sizes = [68000]
+vocab_sizes = [6000]
 
 
 for train_size in train_sizes:
@@ -70,7 +69,7 @@ for train_size in train_sizes:
         dataset_work = dataset.append(dataset2[:train_size], ignore_index=True)
         corpus = build_corpus(dataset_work['Review'])
         
-        # Creating the Bag of Words model for givn train+test sets
+        # Creating the Bag of Words model for given train+test sets
         cv = CountVectorizer(max_features=vocab_size)
         X = cv.fit_transform(corpus).toarray()
         y = dataset_work.iloc[:, 1].values
