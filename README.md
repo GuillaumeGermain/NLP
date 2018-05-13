@@ -1,13 +1,19 @@
 # NLP Bag of Words
 ## Fun with traditional ML algorithms
+The idea is to check how effective "traditional" ML methods work in a simple context.
 1000 restaurant customer reviews are classified as 1 or 0, "Liked" or "Didn't like".
-Reviews are trimmed, removing most common words, and common words/verbs (Like, Liked, Liking) are grouped together to get a more consistent result ("stemming")
-The result is grouped into a rough "Bag of Words", and processed with "traditional" ML techniques to predict ratings on a test set of 200 reviews.
-Results are grouped in a table, sorted by descending F1 score. 
 
-The idea is to check how effective "traditional" ML methods work in this context.
+- Reviews are trimmed from most common words, the "stop words".
+- Linked words/verbs (Like, Liked, Liking, Likable, etc.) are grouped together to get a more consistent result: "stemming".
+- The resulting reviews are grouped into a rough "Bag of Words"
+- This bag of words is processed with "traditional" ML techniques (with and without feature scaling), to predict ratings (0/1) on a test set of 200 reviews.
+- Results are grouped in a table, sorted by descending accuracy. 
 
-The most effective algorithms in this case are SVM with a sigmoid kernel with feature scaling, then Naive Bayes without scaling
+The most accurate algorithms in this case are:
+1. SVM with sigmoid kernel and feature scaling
+2. Logistic regression with feature scaling
+3. SVM RBF with feature scaling
+
 To review the results, open the df_results after the script has run.
 
 Based on an exercise of ML A-Z on Udemy (Superdatascience)
@@ -28,16 +34,17 @@ Some methods work better on a scaled input, others prefer the unscaled version.
 Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!! Specially with such a rough "bag of words" method, not taking into account the words order.
 Now, that'd be nice to achieve a better accuracy, like 90%.
 
-## Phase 2: Let's turbocharge the classifiers!
-To achieve a better performance with my classifiers, my plan was to train them on a bigget dataset of 82000 reviews, like this one on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
-As it turned out, it didn't work as expected, and I learned a lot on the way.
+## Phase 2: Turbocharge the classifiers!
+To achieve a better performance with my classifiers, my plan was to train them on a bigget dataset.
+I found this one, with around 82000 reviews, on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
+As it turned out, it didn't work as expected, and I learned a few things on the way.
 
-The second dataset had around 82000 lines, and scores between 1 and 5.
+This second dataset had around 82000 lines, and scores between 1 and 5.
 So I set 1-2 values to 0, and 4-5 to 1. 3 are discarded as they can't really be considered as "Liked" or not.
 
 Doing so, it was quite an interesting exercise trying different configurations: vocabulary size (number of words considered) and training set sizes.
 
-### Typical results
+### Step by step execution
 I first ran the classifiers with different training and vocabulary sizes to get a rough idea of the performance.
 Results after training on 5000 observations of the second dataset, and testing on 1000 observations of the first one
 ![Results with training on second dataset](nlp_2_results.png)
@@ -105,7 +112,7 @@ TOTAL CPU TIME: 1021.39
 ```
 From this, SVM linear and logistic regression started to look like promising classifiers.
 SVM linear was the best at this point, but its computation time was getting problematic, specially on the scaled input.
-As it turned out later, I dropped it because it was way too long to process.
+As it turned out, I dropped it later because it was way too long to process.
 
 Naive Bayes turned out to be the fastest but really not accurate.
 Random Forest (500 trees) was a bit long, and not so accurate either.
@@ -134,8 +141,13 @@ logistic_regression  True       0.683      0.7482     5.39
 k-nn                 True       0.526      0.4        28.45
 naive_bayes          True       0.524      0.6775     0.46
 random_forest        True       0.552      0.6906     68.7
-.. still being calculated...
-```
+svm_linear           True       0.713      0.7626     2230.51
+svm_rbf              True       0.63       0.7291     288.79
+svm_sigmoid          True       0.607      0.7167     106.57
+
+END ML_LOOP
+####################
+TOTAL CPU TIME: 3389.59```
 
 At this point:
  
@@ -146,12 +158,15 @@ it seems reasonable to drop K-NN, Naive Bayes and Random Forest (acceptably fast
 The execution time of SVM linear was OK on a non-scaled input
 SVM linear "scaled" seemed to deserve a special treatment as it had the best prediction, but it gets so long to train that it's not possible to keep it.
 - SVM Sigmoid happens to stagnate around 50% so out.
-- SVM RBF 
+- SVM RBF
 
 ## Lessons learned
 
-### Test on the right dataset!
-My initial mistake was to train and test the classifiers on a mix of both datasets. This lead to very surprisingly good results, but it was not representative of the performance on the initial test set, what actually really mattered.
+### First mistakes!
+Test on the right dataset!
+I first trained and tested the classifiers on a mix of both datasets. This lead to amazingly good results, but it was not representative of the performance on the initial test set, what actually really mattered.
+
+Second, I used the F1 score as main metric, accuracy turned out to be a better metric.
 
 ### Sparsity is a real problem
 The matrix after tokenization is definitely very sparse. The matrix size is HUGE compared to the information it contains. The information density is very low.
@@ -219,10 +234,11 @@ I'd still would like to find out, up to what point SVM linear still makes sense,
 
 Side remark: the execution is generally slower when performing over a scaled input.
 
+
 # Final conclusions
 The best results I could get was 74.2% with Logistic regression, with 35'000 observations, scaling and a vocabulary of 4500.
 Overall, increasing the training dataset over a certain point seems to slightly decrease performance.
-It suggest overfitting or dancing around a local optimum (as I would see it with a neural network and gradient descent).
+It suggests overfitting or dancing around a local optimum (as I would see it with a neural network and gradient descent).
 
 - The winner in this specific context is Logistic Regression algorithm, though its performance is worse than in the first phase.
 It is actually the second best, but by far the fastest.
@@ -239,18 +255,17 @@ This would actually be very useful.
 
 ## TODO
 - Store all results from different settings in a single dataframe, including the configuration itself. 
-- Clean up the code after a lot of small changes.
 - Test on EXACTLY the same test set of 200 observations, as when classifiers were trained only on 800 observations of the first dataset.
 Just to be sure that this is not biasing the result.
 
 ## Next steps for improvement
-I'll come back later on this exercise. Please send me feedbacks if you do!
+I'll come back later on this exercise. Please send me feedbacks if you play a bit with it!
 
 Basically, potential tracks for improvements would be:
 
-1. Gather the result from a large sampling of runs and find out the best settings, using a second level of ML algorithms (or why not a small NN). The most fun definitively.
+1. Gather the result from a decently large sample of runs and find out the best settings, using a second level of ML algorithms (or why not a small NN). The most fun definitively.
 2. Re-train on 800 of the first dataset + 5000-20'000 of the second one and check the results.
 3. Find a relevant dataset with a good quality, and similar scale/distribution as the initial one.
 4. Try with new classifiers
-4. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
 5. Of course the RNN NLP way: a simple recurrent neural network (RNN), next step with GRU cells.
+6. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
