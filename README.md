@@ -1,6 +1,5 @@
 # NLP Bag of Words
 ## Fun with traditional ML algorithms
-
 1000 restaurant customer reviews are classified as 1 or 0, "Liked" or "Didn't like".
 Reviews are trimmed, removing most common words, and common words/verbs (Like, Liked, Liking) are grouped together to get a more consistent result ("stemming")
 The result is grouped into a rough "Bag of Words", and processed with "traditional" ML techniques to predict ratings on a test set of 200 reviews.
@@ -11,27 +10,27 @@ The idea is to check how effective "traditional" ML methods work in this context
 The most effective algorithms in this case are SVM with a sigmoid kernel with feature scaling, then Naive Bayes without scaling
 To review the results, open the df_results after the script has run.
 
-## Algorithms:
+Based on an exercise of ML A-Z on Udemy (Superdatascience)
+
+## Phase 1:
+### Algorithms:
 * SVM (linear, sigmoid and RBF kernels)
 * Naive Bayes
 * K-NN
 * logistic regression
-
-Based on an exercise of ML A-Z on Udemy (Superdatascience)
-
-## Surprising results
+### Surprising results
 The SVM algorithm with RBF kernel is both best and worst in class. With feature scaling, it achieves the best result with 79% accuracy. Without scaling, it's broken and always predicts 0 (Didn't like) values, as shown in the confusion matrix.
 Some methods work better on a scaled matrix, other prefer the unscaled version.
 
 ![NLP Bag of Words Results](nlp_bag_of_words_results.png)
 
-## Phase 1 Conclusions
-Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!! Specially with such a rough "bag of words", not taking into account the order of words.
+### Phase 1 Conclusions
+Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!! Specially with such a rough "bag of words" method, not taking into account the words order.
 Now, that'd be nice to achieve a better accuracy, like 90%.
 
-## Phase 2: Next step!
-To achieve a better performance with my classifiers, my plan was to turbocharge them by training them on a bigget dataset of 82000 reviews, like this one on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
-As it turned out, it was not a great idea, but I learned a lot on the way.
+## Phase 2: Let's turbocharge the classifiers!
+To achieve a better performance with my classifiers, my plan was to train them on a bigget dataset of 82000 reviews, like this one on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
+As it turned out, it didn't work as expected, and I learned a lot on the way.
 
 The second dataset had roughly 82000 lines, and scores between 1 and 5.
 So I set 1-2 values to 0, and 4-5 to 1. 3 are discarded as they can't really be considered as "Liked" or not.
@@ -117,7 +116,7 @@ Dataset quality matters!
 ### Test evaluation
 At first I used F1 score to select the best classifiers. As the 0-1 class distributions are quite balanced in both datasets (around 40-60%), the accuracy is actually the good metric to use. This is the one which is from now on used to evaluate the performance.
 
-## Phase 3
+## Phase 3: Some more research
 Still somehow unsatisfied with these results, I tried a few things and cleaned up the scripts. 
 I played a bit with the sparse matrix format for specific algorithms (except Naive Bayes which accepts only standard numpy matrices).
 4 algorithms have been long-listed:
@@ -146,6 +145,7 @@ Overall, increasing the training dataset over a certain point seems to slightly 
 - All other algorithms, SVM RBF and SVM Sigmoid or the usually "hassle-free" Random Forests, and Naive Bayes, have a pretty bad performance, below 55%, maybe 60% at best with training/vocabulary sizes. Overall not the best in this context.
 - Feature scaling sometimes improves performance, sometimes not, depending on sizes. I could find a kind of pattern with logistic regression, with scaling improving performance 2-3%... but not always. So I keep both, though it significantly slows down the processing.
 - At the end there is here a second level problem: running scripts over these 3 independent factors: vocabulary size, training size, feature scaling yes/no, and finding out if a pattern can be found. Are there one or several local optima, an recommended size of vocabulary, where does feature scaling really help? This would actually be very useful.
+- The best performance was not as expected. On the point of view of the logistic regression, the accuracy actually increased from 64% to 74% after training on a new dataset.
 
 ## TODO
 - Store all results from different settings in a single dataframe, including the configuration itself. 
