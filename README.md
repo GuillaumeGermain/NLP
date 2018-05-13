@@ -75,9 +75,9 @@ TOTAL CPU TIME: 122.8
 My initial mistake was to train and test the classifiers on a mix of both datasets. This lead to very surprisingly good results!
 But it was not representative of the performance on the initial test set, what actually really mattered.
 
-### Sparsity is a problem
+### Sparsity is a real problem
 The matrix after tokenization is definitely very sparse. The matrix size is HUGE compared to the information it contains. The information density is very low.
-This is a serious performance problem, as each cell has to be processed, whether it contains a dumb 0 or not.
+This is a performance problem, as each cell has to be processed, whether it contains a dumb 0 or not.
 Applying feature scaling changed the 0s by many mean values, but the information density was still the same (appalling).
 
 ### System Performance 
@@ -114,13 +114,18 @@ The dataset quality counts a lot!
 I first used F1 score to select the best classifiers. As the class distributions are quite balanced (kind of 40-60%), the accuracy is actually the good one to take.
 
 ## Phase 3
-After quite a few tries and improvmements, scripts are now a bit cleaner, sparse matrices are used for specific 
+After quite a few tries and improvmements, scripts are now a bit cleaner, sparse matrices are used for specific algorithms (except Naive Bayes which accepts only standard numpy matrices).
 4 algorithms have been long-listed, from which 2 algorithms have been retained:
 - naive_bayes, svm_sigmoid due to their initial good performance on the original dataset
-- logistic_regression, svm_linear as they showed quite some correct performance after training on the second bigger dataset
-At the end, the best algorithms on the initial dataset, were pretty average on the new dataset. Logistic regression and SVM linear showed the best results, depending on the training dataset and vocabulary sizes. Logistic Regression is by far the fastest, the execution time is always extremely fast (most likely logarithmic or linear + a bias, this should be checked).
-Scaling features affects a bit the results, but not in an extreme way. Overall, the execution is slower on the scaled vector.
-The SVM linear seems to ahve a O(n3) asymptotic complexity.
+- logistic_regression, svm_linear as they showed quite some correct performance after training on the second bigger dataset.
+
+At the end, the best algorithms on the initial dataset, didn't perform well when trained on the new dataset. Logistic regression and SVM linear showed the best results, depending on the training dataset and vocabulary sizes. Logistic Regression is very interesting in this regards: by far the fastest, most of the time below a second, while others could take from 5-30,  minutes to run, up to an eternity for SVM linear.
+
+### Asymptotic complexity:
+Logistic regression is by far the most performant, the duration is most likely logarithmic-like (doubling the size barely increases the execution time).
+SVM linear is very bad: from 10'000 to 20'000 lines, execution changes from 25 to 321s. The SVM linear seems to have beetween O(n3) and o(n4) asymptotic complexity. That's a pity that it can't be deployed on the whole second dataset and a wide vocabulary because it has regularly a better performance than logistic regression.
+Overall, the execution is slower when performing over a scaled input.
+
 
 
 ## TODO
