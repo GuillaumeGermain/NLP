@@ -8,6 +8,30 @@ Created on Fri May 11 01:10:55 2018
 
 import pandas as pd
 
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
+from time import process_time
+from scipy import sparse
+from scipy.sparse.csr import csr_matrix
+#'scipy.sparse.csr.csr_matrix'
+
+import re, nltk
+try:
+    from nltk.corpus import stopwords
+except:
+    # Download stopwords as needed
+    print("Downloading stopwords...")
+    nltk.download('stopwords')
+from nltk.stem.porter import PorterStemmer
+
+# Import classifier methods
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+
 
 
 # dataset: test dataset
@@ -36,17 +60,8 @@ import pandas as pd
 
 
 
-# Build a corpus from a text series
+# Build a corpus from the text series
 def build_corpus(text_series):
-    import re, nltk
-    try:
-        from nltk.corpus import stopwords
-    except:
-        # Download stopwords as needed
-        print("Downloading stopwords...")
-        nltk.download('stopwords')
-    from nltk.stem.porter import PorterStemmer
-    
     # Cleaning and stemming the texts
     corpus = []
     ps = PorterStemmer()
@@ -61,21 +76,14 @@ def build_corpus(text_series):
     return corpus
 
 
-def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, True], verbose=True):
+def ml_loop(X_train, y_train, X_test, y_test, methods=None, scales=[False, True], verbose=True):
     """
     Parameters:
     X_train, y_train, X_test, y_test: training and test sets
-    methods: algorithms used. by default "all", all those defined in this function
+    methods: list of algorithms used. by default, all those defined in this function
     scales: feature scaling on the matrix or not. the False value (non-scaled) should be first
-    verbose: display intermediate results for longer datasets/vocabularies, which may take 30 minutes to run
+    verbose: display intermediate results for longer datasets/vocabularies
     """
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.metrics import confusion_matrix
-    from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
-    from time import process_time
-    from scipy import sparse
-    from scipy.sparse.csr import csr_matrix
-    #'scipy.sparse.csr.csr_matrix'
 
     start = process_time()
     X_train_len = X_train.shape[0]
@@ -83,9 +91,9 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
     if verbose:
         print("#" * 20 + "\nSTART ML_LOOP")
         print("training set size:", X_train_len)
-        print("test set size:", X_test.shape[0])
-        print("vocabulary:", X_train.shape[1], "\n")
-    
+        print("vocabulary:", X_train.shape[1])
+        print("test set size:", X_test.shape[0], "\n")
+        
     if methods == ["all"] or methods is None:
         methods=["logistic_regression",
                  "k-nn",
@@ -94,11 +102,19 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
                  "svm_linear",
                  "svm_rbf",
                  "svm_sigmoid"]
-    
+        
+    if scales is None:
+        scales=[False, True]
+        
     if verbose:
+        # Print the table header
         print("METHODS:", " ".join(methods), "\nSCALING:", scales, "\n")
-        print("METHOD".ljust(20, " "), "SCALED".ljust(10, " "), "ACCURACY".ljust(10, " "), "F1".ljust(10, " "), "PROCESSING_TIME")
-
+        print("METHOD".ljust(20, " "), 
+              "SCALED".ljust(10, " "), 
+              "ACCURACY".ljust(10, " "), 
+              "F1".ljust(10, " "), 
+              "PROCESSING_TIME")
+        
     df_results = pd.DataFrame() 
     
     for scaled in scales:
@@ -124,17 +140,14 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
             start_time = process_time()
             # Logistic Regression
             if method == "logistic_regression":
-                from sklearn.linear_model import LogisticRegression
                 classifier = LogisticRegression(random_state=0)
                 classifier.fit(X_train, y_train)
             # K-NN
             if method == "k-nn":
-                from sklearn.neighbors import KNeighborsClassifier
                 classifier = KNeighborsClassifier(n_neighbors=5, metric='minkowski', p=2)
                 classifier.fit(X_train, y_train)
             # Naive Bayes
             if method == "naive_bayes":
-                from sklearn.naive_bayes import GaussianNB
                 classifier = GaussianNB()
                 # Naive Bayes requires a non-sparse matrix type
                 re_dense = False
@@ -146,11 +159,8 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
                     X_train = sparse.csr_matrix(X_train)
             # Random Forest 500
             if method == "random_forest":
-                from sklearn.ensemble import RandomForestClassifier
                 classifier = RandomForestClassifier(n_estimators=500, criterion='entropy', random_state=0)
                 classifier.fit(X_train, y_train)
-            # SVM methods
-            from sklearn.svm import SVC
             # SVM linear
             if method == "svm_linear":
                 classifier = SVC(kernel='linear', random_state=0)
@@ -167,6 +177,8 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
             # Predict with current method
             
             y_pred = classifier.predict(X_test)
+            
+            # Format nicely the result and store it
             f1 = round(f1_score(y_test, y_pred), 4)
             accuracy = round(accuracy_score(y_test, y_pred), 4)
             precision = round(precision_score(y_test, y_pred), 4)
@@ -174,17 +186,32 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, Tr
             cm = confusion_matrix(y_test, y_pred)
             processing_time = round(process_time() - start_time, 2)
             
-            dict_results = {"Method" : [method], "Scaled": scaled, "Accuracy": accuracy,
-                            "Precision" : [precision], "Recall" : [recall], "F1" : [f1],
-                            "ConfusionMatrix" : str(cm), "ProcessingTime" : processing_time}
+            dict_results = {"Method" : [method], 
+                            "Scaled": scaled, 
+                            "Accuracy": accuracy,
+                            "Precision" : [precision], 
+                            "Recall" : [recall], 
+                            "F1" : [f1],
+                            "ConfusionMatrix" : str(cm), 
+                            "ProcessingTime" : processing_time}
             df_results = df_results.append(pd.DataFrame(dict_results))
             
             if verbose:
-                print(method.lower().ljust(20, " "), str(scaled).ljust(10, " "), str(accuracy).ljust(10, " "), str(f1).ljust(10, " "), processing_time)
+                print(method.lower().ljust(20, " "), 
+                      str(scaled).ljust(10, " "), 
+                      str(accuracy).ljust(10, " "), 
+                      str(f1).ljust(10, " "), 
+                      processing_time)
     
     df_results = df_results.sort_values(by=('Accuracy'), ascending=False)
-    df_results = df_results[["Method", "Scaled", "Accuracy", "F1", "Precision",
-                             "Recall", "ConfusionMatrix", "ProcessingTime"]]
+    df_results = df_results[["Method", 
+                             "Scaled", 
+                             "Accuracy", 
+                             "F1", 
+                             "Precision",
+                             "Recall", 
+                             "ConfusionMatrix", 
+                             "ProcessingTime"]]
 
     if verbose:
         print("\nEND ML_LOOP\n" + "#" * 20)

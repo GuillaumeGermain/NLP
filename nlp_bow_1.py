@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from nlp_util import *
+from nlp_util import build_corpus, ml_loop
 
 
 # Importing the dataset
@@ -28,6 +28,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.20, rand
 
 
 # Limit to specific algorithms
+#methods = None #all methods
 methods = ["logistic_regression", 
            "k-nn", 
            "naive_bayes", 
@@ -36,7 +37,7 @@ methods = ["logistic_regression",
            "svm_rbf", 
            "svm_sigmoid"]
 # Feature scaling on that bag of words, not, or both?
-scales = [False, True]
+scales = None
 
 # Exemple limited to 3 methods without scaling
 #methods = ["svm_linear", "svm_rbf", "svm_sigmoid"]
@@ -45,7 +46,7 @@ scales = [False, True]
 
 
 # Loop over all methods
-df_results = ml_loop(X_train, y_train, X_test, y_test, methods=["all"], scales=[False, True])
+df_results = ml_loop(X_train, y_train, X_test, y_test, methods=methods, scales=scales)
 
 # Now have a look at the df_results dataframe to get the comparison
 #TODO display a nice table with matplotlib - https://matplotlib.org/gallery/misc/table_demo.html#sphx-glr-gallery-misc-table-demo-py

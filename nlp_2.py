@@ -13,10 +13,10 @@ using classical classifier algorithms
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from scipy import sparse
+#from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 
-from nlp_util import *
+from nlp_util import build_corpus, ml_loop
 
 # Importing the datasets
 dataset = pd.read_csv('Restaurant_Reviews.tsv', delimiter='\t', quoting=3)
@@ -33,6 +33,7 @@ dataset2.drop(dataset2[dataset2.Liked == 3].index, inplace=True)
 dataset2.loc[dataset2['Liked'] < 3, 'Liked'] = 0
 dataset2.loc[dataset2['Liked'] > 3, 'Liked'] = 1
 
+TEST_SIZE = len(dataset)
 
 
 
@@ -43,11 +44,8 @@ dataset2.loc[dataset2['Liked'] > 3, 'Liked'] = 1
 
 # Pre-cabled loops over many configurations to use directly
 # In this case, only logistic regression (very short time, enables many tries in a short time)
-train_sizes = [20000, 25000, 30000]
-vocab_sizes = [2500, 3000, 3500,4000]
-TEST_SIZE = len(dataset)
-methods = ["logistic_regression"]
-scales = [False, True]
+train_sizes = [35000, 40000]
+vocab_sizes = [4500, 5000, 6000]
 
 # Limit to specific algorithms
 #methods = ["all"] # try all algos
@@ -57,6 +55,11 @@ methods = ["logistic_regression",
            #"svm_sigmoid"
            ]
 #scales = [False, True]
+
+
+methods = None
+train_sizes = [15000]
+vocab_sizes = [1500]
 
 
 for train_size in train_sizes:
@@ -81,5 +84,5 @@ for train_size in train_sizes:
         y_test = y[:TEST_SIZE]
         y_train = y[TEST_SIZE:TEST_SIZE + train_size]
         
-        df_results = ml_loop(X_train, y_train, X_test, y_test, methods=methods, scales=[False, True])
+        df_results = ml_loop(X_train, y_train, X_test, y_test, methods=methods, scales=scales)
 
