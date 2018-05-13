@@ -22,17 +22,17 @@ The SVM algorithm with RBF kernel is both best and worst in class. With feature 
 Some methods work better on a scaled matrix, other prefer the unscaled version.
 ![NLP Bag of Words Results](nlp_bag_of_words_results.png)
 
-## Conclusion
+## Phase 1 Conclusions
 Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!! Specially with a bag of words not taking into account the order of words in each review.
 Now, that'd be nice to achieve a better accuracy, like 90%.
 
 ## Phase 2: Next step!
-So my plan was to turbocharge it and train on a bigget dataset of 82000 reviews, like this one on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
+To achieve a better performance with my classifiers, my plan was to turbocharge them by training them on a bigget dataset of 82000 reviews, like this one on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
 As it turned out, it was not a great idea! (but I learned a lot on the way)
 
-The second dataset, had roughly 82000 lines, and scores between 1 and 5.
+The second dataset had roughly 82000 lines, and scores between 1 and 5.
 The initial idea, was to set 1-2 values to 0, and 4-5 to 1. 3 are discarded as they can't really be considered as "Liked" or not.
-Doing so, it was quite an interesting exercise trying different configurations (more words in the vocabulary, or less), different sizes
+Doing so, it was quite an interesting exercise trying different configurations: vocabulary size (number of words considered) and training set sizes.
 
 ### Typical results
 Results after training on 5000 observations of the second dataset, and testing on 1000 observations of the first one
@@ -72,8 +72,7 @@ TOTAL CPU TIME: 122.8
 ## Lessons learned
 
 ### Test on the right dataset!
-My initial mistake was to train and test the classifiers on a mix of both datasets. This lead to very surprisingly good results!
-But it was not representative of the performance on the initial test set, what actually really mattered.
+My initial mistake was to train and test the classifiers on a mix of both datasets. This lead to very surprisingly good results, but it was not representative of the performance on the initial test set, what actually really mattered.
 
 ### Sparsity is a real problem
 The matrix after tokenization is definitely very sparse. The matrix size is HUGE compared to the information it contains. The information density is very low.
@@ -91,7 +90,7 @@ Then I started logging the times (a very interesting information BTW) and printi
 Unfortunately, the system performance could not really be improved, as I was mainly using standard fitting functions of traditional algorithms.
 Trying to writing them in Python was not an option (Python per se is awfully slow), and their implementation in C/C++ was definitively better than what I could have done myself.
 
-### Experiment conclusions
+## Phase 2 conclusions
 After many tries, I came to the conclusion that using this new dataset was doing more harm than good.
 - Performance in the best cases, the F1 score was quite average, and the accuracy unsatisfying, specially taking into account the much higher training set size and longer processing time.
 The performance was much better when training classifiers with only a part of the initial smaller dataset!
@@ -111,30 +110,36 @@ So the naive assumption that training ML classifiers on bigger dataset would aut
 The dataset quality counts a lot!
 
 ### Test evaluation
-I first used F1 score to select the best classifiers. As the class distributions are quite balanced (kind of 40-60%), the accuracy is actually the good one to take.
+At first I used F1 score to select the best classifiers. As the class distributions are quite balanced (kind of 40-60%), the accuracy is actually the good one to take.
 
 ## Phase 3
-After quite a few tries and improvmements, scripts are now a bit cleaner, sparse matrices are used for specific algorithms (except Naive Bayes which accepts only standard numpy matrices).
+After quite a few tries and improvements, scripts are now a bit cleaner. I have also played a bit with the sparse matrix format for specific algorithms (except Naive Bayes which accepts only standard numpy matrices).
 4 algorithms have been long-listed, from which 2 algorithms have been retained:
 - naive_bayes, svm_sigmoid due to their initial good performance on the original dataset
 - logistic_regression, svm_linear as they showed quite some correct performance after training on the second bigger dataset.
 
-At the end, the best algorithms on the initial dataset, didn't perform well when trained on the new dataset. Logistic regression and SVM linear showed the best results, depending on the training dataset and vocabulary sizes. Logistic Regression is very interesting in this regards: by far the fastest, most of the time below a second, while others could take from 5-30,  minutes to run, up to an eternity for SVM linear.
+All in all, the best algorithms on the initial dataset, didn't perform well when trained on the new dataset. Logistic regression and SVM linear showed the best results, depending on the training dataset and vocabulary sizes. Logistic Regression is very interesting in this regards: by far the fastest, most of the time below a second, while others could take from 5-30,  minutes to run, up to an eternity for SVM linear.
 
 ### Asymptotic complexity:
 Logistic regression is by far the most performant, the duration is most likely logarithmic-like (doubling the size barely increases the execution time).
-SVM linear is very bad: from 10'000 to 20'000 lines, execution changes from 25 to 321s. The SVM linear seems to have beetween O(n3) and o(n4) asymptotic complexity. That's a pity that it can't be deployed on the whole second dataset and a wide vocabulary because it has regularly a better performance than logistic regression.
+SVM linear is very bad: from 10'000 to 20'000 lines, execution changes from 25 to 321s. The SVM linear provided by skikit seems to have beetween O(n3) and o(n4) asymptotic complexity. That's a pity that it can't be deployed on the whole second dataset and a wide vocabulary because it has regularly a better performance than logistic regression.
 Overall, the execution is slower when performing over a scaled input.
 
-
+# Final conclusions
+At the end I automated the tests with different settings (training set size and vocabulary size), to test the results.
+So they can be called very quickly in a new context (new project or Hackathon). One example is Spam Recognition, where usually Naive Bayes shines.
+The winner here is Logistic Regression algorithm. Along with SVM linear, it performed better on bigger datasets. SVM linear was overall slightly better but not an option due to its awful computation time.
+Random Forests, and Naive Bayes perfomrance, which are normally hassel-free, was only around 50%
+Feature scaling sometimes improves performance, sometime not.
 
 ## TODO
+- store all results from different settings in a single dataframe, including the configuration itself. 
 - clean up the code after a lot of small changes.
 
 ## Next steps for improvement
+I won't go further on this exercise (feel free to do so and semd me feedbacks).
 Basically, potential tracks for improvements would be
 1. Re-train on 800 of the first dataset + 5000-20'000 of the second one and check the results
 2. Find a relevant dataset with a good quality, and similar scale/distribution as the initial one.
-3. Automate the test with different values of vocabulary size, and dataset size, store the results into a list of dataframes, and extract out of it the most promising accuracies and F1 scores
-4. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
-5. Of course the RNN NLP way: a simple recurrent neural network (RNN), next step with GRU cells.
+3. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
+4. Of course the RNN NLP way: a simple recurrent neural network (RNN), next step with GRU cells.
