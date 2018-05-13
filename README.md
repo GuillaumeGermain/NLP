@@ -15,32 +15,37 @@ Based on an exercise of ML A-Z on Udemy (Superdatascience)
 * K-NN
 * logistic regression
 
-Process:
+### Process:
 
-- Reviews are trimmed from most common words, the famous "stop words".
-- "Stemming": related words/verbs are grouped together to get a more consistent result. E.g. all words Like, Likes, Liked, Liking, Likable, etc. become "Lik".
+- "stop words", the most common words, are removed from the reviews as they do not add value.
+- "Stemming": related words/verbs are grouped together to get a more consistent result. E.g. all words like, likes, liked, liking, likable, etc. become "like".
 - Resulting reviews are grouped into a rough "Bag of Words"
-- This bag of words is processed with "traditional" ML techniques (with and without feature scaling), to predict ratings (0/1) on a test set of 200 reviews.
+- Words are tokenized, keeping only the most used words are kept to reduce sparsity and computation cost of the classifiers. The result is de facto a very sparse matrix.
+- This bag of words is processed with "traditional" ML techniques (with and without feature scaling). The training/test set sizes are 800/200 (80%/20% of the dataset)
+- Ratings (0/1) are predicted on a test set of 200 reviews.
 - Results are grouped in a table, sorted by descending accuracy. 
 
 ### Surprising results
-The SVM algorithm with Sigmoid kernel is both best and worst in class. With feature scaling, it achieves the best result with 79% accuracy. Without scaling, it's broken and always predicts 0 (Didn't like) values, as shown in the confusion matrix.
-Some methods work better on a scaled input, others prefer the unscaled version.
+The TOP 3:
 
-![NLP Bag of Words Results](nlp_bow_1.png)
-
-### Phase 1 Conclusions
-Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!! Specially with such a rough "bag of words" method, not taking into account the words order.
-Now, that'd be nice to achieve a better accuracy, like 90%.
-
-The most accurate algorithms in this case are:
 1. SVM with sigmoid kernel and feature scaling
 2. Logistic regression with feature scaling
 3. SVM RBF with feature scaling
 
+The SVM algorithm with Sigmoid kernel is actually both best and worst in class. With feature scaling, it achieves the best result with 79.5% accuracy.
+Without scaling, it's broken and always predicts 0 (Didn't like) values, as shown in the confusion matrix.
+Some methods perform better on a scaled input, others prefer the unscaled version.
+
+![NLP Bag of Words Results](nlp_bow_1.png)
+
+### Phase 1 Conclusions
+Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!!
+Specially with such a rough "bag of words" method, not taking into account the words order.
+Now, that'd be nice to achieve a better accuracy, like 90%.
+
 
 ## Phase 2: Turbocharge the classifiers!
-To achieve a better performance with my classifiers, my plan was to train them on a bigget dataset.
+To achieve a better performance with my classifiers, I planned to train them on a bigget dataset.
 I found this one, with around 82000 reviews, on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
 As it turned out, it didn't work as expected, and I learned a few things on the way.
 
@@ -152,7 +157,8 @@ svm_sigmoid          True       0.607      0.7167     106.57
 
 END ML_LOOP
 ####################
-TOTAL CPU TIME: 3389.59```
+TOTAL CPU TIME: 3389.59
+```
 
 At this point:
  
@@ -161,9 +167,11 @@ At this point:
 - Random Forest is stagnating around 51-53% and bit long to process => out
 it seems reasonable to drop K-NN, Naive Bayes and Random Forest (acceptably fast but not accurate)
 The execution time of SVM linear was OK on a non-scaled input
-SVM linear "scaled" seemed to deserve a special treatment as it had the best prediction, but it gets so long to train that it's not possible to keep it.
+SVM linear "scaled" seemed to deserve a special treatment as it had the best prediction, but it gets so long to train that it's simply not possible to keep it.
 - SVM Sigmoid happens to stagnate around 50% so out.
-- SVM RBF
+- SVM RBF without scaling is not good, with scaling OK.
+
+And so on...
 
 ## Lessons learned
 
@@ -259,14 +267,14 @@ This would actually be very useful.
 - The best performance was not as expected. On the point of view of the logistic regression, the accuracy actually increased from 64% to 74% after training on a new dataset.
 
 ## TODO
-- Store all results from different settings in a single dataframe, including the configuration itself. 
+- Store all results from different settings in a single dataframe, including the run settings (train size, vocab size, scaling or not). 
 - Test on EXACTLY the same test set of 200 observations, as when classifiers were trained only on 800 observations of the first dataset.
 Just to be sure that this is not biasing the result.
 
 ## Next steps for improvement
-I'll come back later on this exercise. Please send me feedbacks if you play a bit with it!
+I'll most likely not work further on this exercise. Please send me feedbacks if you do!
 
-Basically, potential tracks for improvements would be:
+Basically, potential tracks for improvements I see are:
 
 1. Gather the result from a decently large sample of runs and find out the best settings, using a second level of ML algorithms (or why not a small NN). The most fun definitively.
 2. Re-train on 800 of the first dataset + 5000-20'000 of the second one and check the results.
@@ -274,3 +282,6 @@ Basically, potential tracks for improvements would be:
 4. Try with new classifiers
 5. Of course the RNN NLP way: a simple recurrent neural network (RNN), next step with GRU cells.
 6. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
+
+One very interesting thing to do, but most likely not possible, would be to use a language encoding vector (as common in Recurrent Neural Networks).
+So a sparse one-hot vector could be represented by a much smaller vector and the computation time would be much better.
