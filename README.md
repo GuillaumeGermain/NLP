@@ -268,8 +268,17 @@ So I keep both, though it significantly slows down the processing.
 Are there one or several local optima, an recommended size of vocabulary, where does feature scaling really help?
 This would actually be very useful.
 
-## TODO
-- Store all results from different settings in a single dataframe, including the run settings (train size, vocab size, scaling or not). 
+## Phase 4?
+
+- New algorithms: 
+I tried quickly the polynomial SVM kernels, just in case it brings interesting results. 
+The accuracy was surprinsingly a flat 50% in all the tests, and the running time was consistently very long, so it's not promising at all.
+I also took a "heavy" random forest with 500 trees.
+If 300 trees gave correct results for a much shorter computation time, then it could be considered for higher volumes.
+- Get more precise details on the computing time: pre-process the data, generating the spare matrix, fitting and predicting time.
+- A small digression: compare the values of dense and sparse matrices formats, and display it nicely in a graphic.
+It would also be interesting to check more precisely the impact on computation time.
+- Store results from different settings in a single dataframe, including the run settings (train size, vocab size, scaling or not). 
 - Test on EXACTLY the same test set of 200 observations, as when classifiers were trained only on 800 observations of the first dataset.
 Just to be sure that this is not biasing the result.
 

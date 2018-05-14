@@ -56,9 +56,9 @@ methods = ["logistic_regression",
            ]
 
 
-methods = ["naive_bayes"]
-train_sizes = [68000]
-vocab_sizes = [6000]
+methods = ["svm_poly"]
+train_sizes = [10000, 15000,20000]
+vocab_sizes = [1000, 1500, 2000]
 
 
 for train_size in train_sizes:

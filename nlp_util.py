@@ -173,6 +173,10 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=None, scales=[False, True]
             if method == "svm_sigmoid":
                 classifier = SVC(kernel='sigmoid', random_state=0)
                 classifier.fit(X_train, y_train)
+            # SVM Polynomial
+            if method == "svm_poly":
+                classifier = SVC(kernel='poly', degree=3, random_state=0)
+                classifier.fit(X_train, y_train)
             
             # Predict with current method
             
