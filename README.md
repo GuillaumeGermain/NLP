@@ -48,7 +48,7 @@ Specially with such a rough "bag of words" method, not taking into account the w
 Now, that'd be nice to achieve a better accuracy, like 90%.
 
 
-## Phase 2: Turbocharge the classifiers!
+# Phase 2: Turbocharge the classifiers!
 To achieve a better performance with my classifiers, I planned to train them on a bigget dataset.
 I found this one, with around 82000 reviews, on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
 As it turned out, it didn't work as expected, and I learned a few things on the way.
@@ -57,44 +57,14 @@ This second dataset had around 82000 lines, and scores between 1 and 5.
 So I set values so:
 - 1-2 => 0
 - 4-5 => 1.
-- 3 => discarded: they can't really be considered as "Liked" or not.
+- 3 => discarded: they can't really be considered as "liked" or not.
 
 Doing so, it was quite an interesting exercise trying different configurations: vocabulary size (number of words considered) and training set sizes.
 
-### Step by step execution
+## Step by step execution
 I first ran the classifiers with different training and vocabulary sizes to get a rough idea of the performance.
 Results after training on 5000 observations of the second dataset, and testing on 1000 observations of the first one
 ![Results with training on second dataset](nlp_2_results.png)
-```
-####################
-START ML_LOOP
-training set size: 5000
-vocabulary: 1000
-test set size: 1000 
-
-METHODS: logistic_regression k-nn naive_bayes random_forest svm_linear svm_rbf svm_sigmoid 
-SCALING: [False, True] 
-
-METHOD               SCALED     ACCURACY   F1         PROCESSING_TIME
-logistic_regression  False      0.64       0.7293     0.31
-k-nn                 False      0.54       0.2508     7.17
-naive_bayes          False      0.518      0.6748     0.11
-random_forest        False      0.531      0.6807     12.76
-svm_linear           False      0.639      0.7267     12.17
-svm_rbf              False      0.5        0.6667     13.71
-svm_sigmoid          False      0.5        0.6667     13.91
-logistic_regression  True       0.64       0.7273     2.4
-k-nn                 True       0.51       0.6707     7.03
-naive_bayes          True       0.518      0.6748     0.09
-random_forest        True       0.53       0.6803     12.68
-svm_linear           True       0.655      0.7324     12.22
-svm_rbf              True       0.544      0.6864     16.41
-svm_sigmoid          True       0.54       0.6845     10.27
-
-END ML_LOOP
-####################
-TOTAL CPU TIME: 121.46
-```
 
 ```
 ####################
@@ -127,14 +97,14 @@ END ML_LOOP
 TOTAL CPU TIME: 1021.39
 
 ```
+## First intermediate results
 SVM linear and logistic regression started to look like promising classifiers.
-SVM linear was the best at this point, but its computation time was getting problematic, specially on the scaled input.
+- SVM linear was the best at this point, but its computation time was getting problematic, specially on the scaled input.
 As it turned out, I dropped it later because it was way too long to process.
+- Naive Bayes was the fastest but really not accurate.
+- Random Forest (500 trees) was a bit long, and not so accurate either.
 
-Naive Bayes turned out to be the fastest but really not accurate.
-Random Forest (500 trees) was a bit long, and not so accurate either.
-
-So I gave all of these classifiers a new try with a bigger training set and vocabulary size:
+Then I gave all of these classifiers a new try with a bigger training set and vocabulary size:
 
 ```
 ####################
@@ -167,7 +137,7 @@ END ML_LOOP
 TOTAL CPU TIME: 3389.59
 ```
 
-### At this point:
+## At this point:
  
 - K-NN accuracy is getting worse with more data
 - Naive Bayes still has a minor improvement, but is super-fast then cheap to keep
@@ -224,14 +194,14 @@ Basically, I trained my classifiers to shoot in a target (training set), and the
 So the naive assumption that training ML classifiers on a bigger dataset would automatically bring better results, was indeed very naive.
 Dataset quality matters!
 
-### Phase 2 conclusions
+## Phase 2 conclusions
 Overall, I came to the conclusion that using this new dataset was not so great for training:
 - In the best cases, both accuracy and F1 score very unsatisfying, specially taking into account the much higher training set size and longer processing time.
 The performance was much better when training classifiers with only a part of the initial smaller dataset!
 - One interesting fact, one of the most simple approaches, logistic regression, was always the fastest and generally with the best performance (most runs in a fraction of a second, 1000 times faster than others).
 - Naive Bayes could also have had a decent result, and it was very fast compared to other algorithms. It makes sense to use it in some cases considering its performance.
 
-## Phase 3: More research
+# Phase 3: More research
 Still somehow unsatisfied with these results, I wanted to find out if I could get better results, even though the chosen dataset was not the best one to train my classifiers.
 I played a bit with the sparse matrix format for specific algorithms (except Naive Bayes which accepts only standard numpy matrices).
 All in all, most algorithms didn't perform well when trained on the new dataset.
@@ -244,7 +214,7 @@ One case could be Spam Recognition, where Naive Bayes usually shines.
 
 I used this to test logistic regression with many different configurations, vocabulary size and training set size.
 
-### Asymptotic complexity:
+## Asymptotic complexity:
 Logistic regression complexity is most likely logarithmic-like as doubling the size seems to translate to a constant increase of execution time.
 
 SVM linear computation time is... very bad: from 10'000 to 20'000 lines, execution jumps from 25 to 321s.
@@ -256,7 +226,7 @@ I'd still would like to find out, up to what point SVM linear still makes sense,
 The execution is generally slower when performing over a scaled input.
 
 
-# Final conclusions
+# Phase 3 conclusions
 Logistic regression is by far the best combination of accuracy and running time. 
 The best results I could get was 74.2%, with 35'000 observations, scaling and a vocabulary of 4500.
 
@@ -280,8 +250,7 @@ Can we find one or several local optima, a recommended size of vocabulary, where
 This would be a very interesting problem to solve, and very useful.
 
 
-## Phase 4? Remaining questions
-
+# Phase 4? Remaining questions
 - Algorithms tuning: I took standard settings for each algorithms. 
 I would be good to narrow down on specific algorithms and explore more the impact of different parameters, specially:
     - Number of degrees for SVM Polynomial
@@ -302,6 +271,7 @@ I'll most likely not work further on this exercise. Please send me feedbacks if 
 
 Basically, potential tracks for improvements I see are:
 
+1. Add the accuracy on the training set to see if there is overfitting
 1. Gather the result from a decently large sample of runs and find out the best settings, using a second level of ML algorithms (or why not a small NN). The most fun definitively.
 1. Re-train on 800 of the first dataset + 5000-20'000 of the second one and check the results.
 1. Find a relevant dataset with a good quality, and similar scale/distribution as the initial one.
@@ -311,3 +281,32 @@ Basically, potential tracks for improvements I see are:
 
 One very interesting thing to do, most likely not possible, would be to use a language encoding vector (e.g. Glove), as commonly used with NLP Recurrent Neural Networks.
 So a sparse one-hot vector could be represented by a much smaller vector and the computation time would be much better.
+
+# Last but not least
+As I was doing minor changes on scripts, came a dumb idea: what about the 3* ratings.
+Are they really so "undecided", that they can't really be taken into account?
+The mean of this second dataset is rather between 3 and 4.
+So I ran the scripts again with 3* values included, converted into 0 (NOT LIKED). And... BINGO!
+
+Already on small datasets and vocabularies, accuracy jumped up. 
+- Random forest accuracy jumped from 55 to 75%, first place, best accuracy with a small dataset!
+- Logistic regression increased from 67 to 71% (scaled and not scaled)
+- SVM Linear had a similar accuracy improvement on the unscaled version
+- No improvement on Naive Bayes
+
+As for the phase 3, I used again the standard logistic regression intensively.
+Thanks to its performance and speed it enabled me to test many configurations in a short time.
+I could reach a better result of **76.6%** with 15000 reviews and a vocabulary of 2000 words.
+As before, it seemed that accuracy decreased at some point with more vocabulary and more training data.
+
+SVM linear execution time exploded with this new dataset including 3*.
+SVM linear actually evaluates "edge" cases and tries to find a best separating line (here an hyperplane due to the high dimensionality).
+Such an algorithm had a hard time with these 3* reviews.
+
+# Final conclusions
+* Overall it's difficult to know in advance which algorithm will perform best.
+* Logistic regression is a good bet but some others might be suddenly better for a specific dataset/problem to solve.
+* Testing on smaller datasets is a good way to sort out the most promising ones.
+* The processing time of some algorithms will suddenly explode and you need to exclude them from the test.
+* Algorithms need a minimum of data to reach their potential then seem not to really benefit from more data.
+* Changes on the data have more impact than tuning algorithms

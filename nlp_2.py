@@ -29,9 +29,12 @@ dataset2 = pd.read_csv('newdata/1-restaurant-train.tsv', delimiter='\t', quoting
 ## The second dataset has different values, from 1 to 5
 ## middle values 3 will be deleted, 1-2 become 0 (Don't like), and 4-5 become 1 (Liked)
 ## Size 82000 -> 68000 (roughly)
-dataset2.drop(dataset2[dataset2.Liked == 3].index, inplace=True)
 dataset2.loc[dataset2['Liked'] < 3, 'Liked'] = 0
 dataset2.loc[dataset2['Liked'] > 3, 'Liked'] = 1
+
+# Dumb test
+#dataset2.drop(dataset2[dataset2.Liked == 3].index, inplace=True)
+dataset2.loc[dataset2['Liked'] == 3, 'Liked'] = 0
 
 TEST_SIZE = len(dataset)
 
@@ -41,24 +44,27 @@ TEST_SIZE = len(dataset)
 ### LOOP OVER THIS
 # Pre-cabled loops over many configurations to use directly
 
-#train_sizes = [1000, 2000, 5000, 10000, 15000, 20000, 30000, len(dataset2)]
-#vocab_sizes = [500, 800, 1000, 1500, 1800, 2000, 2200]
-
-train_sizes = [35000, 40000]
-vocab_sizes = [4500, 5000, 6000]
-
 # Limit to specific algorithms
 #methods = None # try all algos
-methods = ["logistic_regression",
-           #"naive_bayes",
-           #"svm_linear",
-           #"svm_sigmoid"
-           ]
+methods=["logistic_regression"
+         ,"k-nn"
+         ,"naive_bayes"
+         ,"random_forest"
+         #,"svm_linear"
+         #,"svm_rbf"
+         #,"svm_sigmoid"
+         #,"svm_poly"
+         ]
+
+methods=["logistic_regression"]
 
 
-methods = ["svm_poly"]
-train_sizes = [10000, 15000,20000]
-vocab_sizes = [1000, 1500, 2000]
+scales = None # try with both feature scaling and without
+
+train_sizes = [15000, 18000]
+vocab_sizes = [1800, 2200]
+#train_sizes = [1000, 2000, 5000, 10000, 15000, 20000, 30000, len(dataset2)]
+#vocab_sizes = [500, 800, 1000, 1500, 1800, 2000, 2200]
 
 
 for train_size in train_sizes:
@@ -77,7 +83,7 @@ for train_size in train_sizes:
         # set the matrix type to "sparse"
         #X = sparse.csr_matrix(X)
         
-        # Get back train and test sets form merged matrix
+        # Get back train and test sets from merged matrix
         X_test = X[:TEST_SIZE]
         X_train = X[TEST_SIZE:TEST_SIZE + train_size]
         y_test = y[:TEST_SIZE]

@@ -14,7 +14,6 @@ from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_sc
 from time import process_time
 from scipy import sparse
 from scipy.sparse.csr import csr_matrix
-#'scipy.sparse.csr.csr_matrix'
 
 import re, nltk
 try:
@@ -95,13 +94,15 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=None, scales=[False, True]
         print("test set size:", X_test.shape[0], "\n")
         
     if methods == ["all"] or methods is None:
-        methods=["logistic_regression",
-                 "k-nn",
-                 "naive_bayes",
-                 "random_forest",
-                 "svm_linear",
-                 "svm_rbf",
-                 "svm_sigmoid"]
+        methods=["logistic_regression"
+                 ,"k-nn"
+                 ,"naive_bayes"
+                 ,"random_forest"
+                 ,"svm_linear"
+                 ,"svm_rbf"
+                 ,"svm_sigmoid"
+                 ,"svm_poly"
+                 ]
         
     if scales is None:
         scales=[False, True]
@@ -130,11 +131,10 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=None, scales=[False, True]
             sc_X = StandardScaler()
             X_train = sc_X.fit_transform(X_train.astype(float))
             X_test = sc_X.transform(X_test.astype(float))
-                
-            # Sparsify for processing
-            if re_dense:
-                X_train = sparse.csr_matrix(X_train)
-                X_test = sparse.csr_matrix(X_test)
+#            # Sparsify for processing
+#            if re_dense:
+#                X_train = sparse.csr_matrix(X_train)
+#                X_test = sparse.csr_matrix(X_test)
         
         for method in methods:
             start_time = process_time()
@@ -150,13 +150,13 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=None, scales=[False, True]
             if method == "naive_bayes":
                 classifier = GaussianNB()
                 # Naive Bayes requires a non-sparse matrix type
-                re_dense = False
-                if isinstance(X_train, csr_matrix):
-                    X_train.toarray()
-                    re_dense = True
+#                re_dense = False
+#                if isinstance(X_train, csr_matrix):
+#                    X_train.toarray()
+#                    re_dense = True
                 classifier.fit(X_train, y_train)
-                if re_dense:
-                    X_train = sparse.csr_matrix(X_train)
+#                if re_dense:
+#                    X_train = sparse.csr_matrix(X_train)
             # Random Forest 500
             if method == "random_forest":
                 classifier = RandomForestClassifier(n_estimators=500, criterion='entropy', random_state=0)
