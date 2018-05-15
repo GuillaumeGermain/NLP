@@ -62,7 +62,7 @@ So I set values so:
 Doing so, it was quite an interesting exercise trying different configurations: vocabulary size (number of words considered) and training set sizes.
 
 ## Step by step execution
-I first ran the classifiers with different training and vocabulary sizes to get a rough idea of the performance.
+I first run the classifiers with different training and vocabulary sizes to get a rough idea of the performance.
 Results after training on 5000 observations of the second dataset, and testing on 1000 observations of the first one
 ![Results with training on second dataset](nlp_2_results.png)
 
@@ -98,13 +98,13 @@ TOTAL CPU TIME: 1021.39
 
 ```
 ## First intermediate results
-SVM linear and logistic regression started to look like promising classifiers.
-- SVM linear was the best at this point, but its computation time was getting problematic, specially on the scaled input.
+SVM linear and logistic regression look like promising classifiers.
+- SVM linear is the best at this point, but its computation time gets problematic, specially on the scaled input.
 As it turned out, I dropped it later because it was way too long to process.
-- Naive Bayes was the fastest but really not accurate.
-- Random Forest (500 trees) was a bit long, and not so accurate either.
+- Naive Bayes is the fastest but really not accurate.
+- Random Forest (500 trees) is a bit long, and not so accurate either.
 
-Then I gave all of these classifiers a new try with a bigger training set and vocabulary size:
+Then I give all of these classifiers a new try with a bigger training set and vocabulary size:
 
 ```
 ####################
@@ -150,19 +150,24 @@ SVM linear "scaled" seemed to deserve a special treatment as it had the best pre
 
 And so on...
 
+At the end the big winner is... **logistic regression**. SVM linear has better results at first but just doesn't scale up.
+
 ## Lessons learned
 
 ### First mistakes!
-First, I mix of both datasets and trained and tested both classifiers on this.
+First, I mixed both datasets and trained and tested both classifiers on this.
 This lead to amazingly good results, but it was not representative of the performance on the initial test set, what actually really mattered.
 
 Second, I used the F1 score as main metric, accuracy turned out to be a better metric.
 
-### Sparsity is a real problem
+### Sparsity
 The matrix after tokenization is definitely very sparse. The information density is very low.
 The matrix size is HUGE compared to the information it contains. 
 This leads to a longer computation time, as each cell has to be processed, whether it contains a dumb 0 or not.
 Applying feature scaling changed the 0s by many mean values, but the information density was still the same (appalling).
+
+I tried a "sparse" matrix format, but on this volume, it did not seem to make a big difference.
+It made scripts more complex and Naive Bayes could not process those.
 
 ### Computation Performance 
 The matrix size is basically training set size * vocabulary size. So it could vary from 1000 x 1000 (1 million cells) to 50'000 x 18'000 (900 millions cells!) depending on encoding choices.
@@ -303,10 +308,16 @@ SVM linear execution time exploded with this new dataset including 3*.
 SVM linear actually evaluates "edge" cases and tries to find a best separating line (here an hyperplane due to the high dimensionality).
 Such an algorithm had a hard time with these 3* reviews.
 
+A quick check on the dataset summary showed that this change made both data distributions closer.
+The mean of the second dataset moved from 0.77 to 0.64, much closer to the 0.5 mean of the first one.
+This definitively helped to impprove accuracy.
+
 # Final conclusions
 * Overall it's difficult to know in advance which algorithm will perform best.
 * Logistic regression is a good bet but some others might be suddenly better for a specific dataset/problem to solve.
 * Testing on smaller datasets is a good way to sort out the most promising ones.
 * The processing time of some algorithms will suddenly explode and you need to exclude them from the test.
 * Algorithms need a minimum of data to reach their potential then seem not to really benefit from more data.
-* Changes on the data have more impact than tuning algorithms
+
+**Better data has more impact than better algorithms**
+
