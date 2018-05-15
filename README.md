@@ -16,6 +16,8 @@ Based on an exercise of ML A-Z on Udemy (Superdatascience)
 
 ### Process:
 
+The data is in the Restaurant_Reviews.tsv file
+
 - Data loading into dataframes
 - "stop words", the most common words, are removed from the reviews as they do not add value.
 - "Stemming": related words/verbs are grouped together to get a more consistent result. E.g. all words like, likes, liked, liking, likable, etc. become "like".
@@ -52,7 +54,10 @@ I found this one, with around 82000 reviews, on [Kaggle](https://www.kaggle.com/
 As it turned out, it didn't work as expected, and I learned a few things on the way.
 
 This second dataset had around 82000 lines, and scores between 1 and 5.
-So I set 1-2 values to 0, and 4-5 to 1. 3 are discarded as they can't really be considered as "Liked" or not.
+So I set values so:
+- 1-2 => 0
+- 4-5 => 1.
+- 3 => discarded: they can't really be considered as "Liked" or not.
 
 Doing so, it was quite an interesting exercise trying different configurations: vocabulary size (number of words considered) and training set sizes.
 
@@ -122,7 +127,7 @@ END ML_LOOP
 TOTAL CPU TIME: 1021.39
 
 ```
-From this, SVM linear and logistic regression started to look like promising classifiers.
+SVM linear and logistic regression started to look like promising classifiers.
 SVM linear was the best at this point, but its computation time was getting problematic, specially on the scaled input.
 As it turned out, I dropped it later because it was way too long to process.
 
@@ -178,8 +183,8 @@ And so on...
 ## Lessons learned
 
 ### First mistakes!
-Test on the right dataset!
-I first trained and tested the classifiers on a mix of both datasets. This lead to amazingly good results, but it was not representative of the performance on the initial test set, what actually really mattered.
+First, I mix of both datasets and trained and tested both classifiers on this.
+This lead to amazingly good results, but it was not representative of the performance on the initial test set, what actually really mattered.
 
 Second, I used the F1 score as main metric, accuracy turned out to be a better metric.
 
