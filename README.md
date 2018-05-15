@@ -1,8 +1,7 @@
 # NLP Bag of Words
 ## Fun with traditional ML algorithms
-The idea is to check how effective "traditional" ML methods work in a simple context.
+Check how effective "traditional" ML methods work in a simple context.
 1000 restaurant customer reviews are classified as 1 or 0, "Liked" or "Didn't like".
-
 
 To review the results, open the df_results after the script has run.
 
@@ -17,6 +16,7 @@ Based on an exercise of ML A-Z on Udemy (Superdatascience)
 
 ### Process:
 
+- Data loading into dataframes
 - "stop words", the most common words, are removed from the reviews as they do not add value.
 - "Stemming": related words/verbs are grouped together to get a more consistent result. E.g. all words like, likes, liked, liking, likable, etc. become "like".
 - Resulting reviews are grouped into a rough "Bag of Words"
@@ -29,12 +29,14 @@ Based on an exercise of ML A-Z on Udemy (Superdatascience)
 The TOP 3:
 
 1. SVM with sigmoid kernel and feature scaling
-2. Logistic regression with feature scaling
-3. SVM RBF with feature scaling
+1. Logistic regression with feature scaling
+1. SVM RBF with feature scaling
 
 The SVM algorithm with Sigmoid kernel is actually both best and worst in class. With feature scaling, it achieves the best result with 79.5% accuracy.
 Without scaling, it's broken and always predicts 0 (Didn't like) values, as shown in the confusion matrix.
 Some methods perform better on a scaled input, others prefer the unscaled version.
+
+The time is displayed in seconds.
 
 ![NLP Bag of Words Results](nlp_bow_1.png)
 
@@ -165,7 +167,7 @@ TOTAL CPU TIME: 3389.59
 - K-NN accuracy is getting worse with more data
 - Naive Bayes still has a minor improvement, but is super-fast then cheap to keep
 - Random Forest is stagnating around 51-53% and bit long to process => out
-it seems reasonable to drop K-NN, Naive Bayes and Random Forest (acceptably fast but not accurate)
+It seems reasonable to drop K-NN, Naive Bayes and Random Forest (acceptably fast but not accurate)
 The execution time of SVM linear was OK on a non-scaled input
 SVM linear "scaled" seemed to deserve a special treatment as it had the best prediction, but it gets so long to train that it's simply not possible to keep it.
 - SVM Sigmoid happens to stagnate around 50% so out.
@@ -261,19 +263,27 @@ It is actually the second best, but by far the fastest.
 SVM linear seems to be overall slightly better but its full potential cannot be used due to its awful computation time, which prevents training it on bigger datasets.
 - All other algorithms, SVM RBF and SVM Sigmoid or the usually "hassle-free" Random Forests, and Naive Bayes, have a pretty bad performance, below 55%, maybe 60% at best with training/vocabulary sizes.
 Overall not the best in this context.
+- I quickly tried the polynomial SVM kernels, just in case it brings interesting results. 
+The accuracy was a surprinsing flat 50% in all my tests, and the running time was consistently very long, so I didn't go further.
+Now it's at least in the nlp_util file, usable on other problems.
 - Feature scaling sometimes improves performance, sometimes not, depending on sizes.
 I could find a kind of pattern with logistic regression, with scaling improving performance 2-3%... but not always.
-So I keep both, though it significantly slows down the processing.
-- At the end there is here a second level problem: running scripts over these 3 independent factors: vocabulary size, training size, feature scaling yes/no, and finding out if a pattern can be found.
-Are there one or several local optima, an recommended size of vocabulary, where does feature scaling really help?
-This would actually be very useful.
+So I keep both, though it significantly increases the processing time.
 
-## Phase 4?
+At the end I see here a second level problem: running scripts over these 3 independent factors: vocabulary size, training size, feature scaling yes/no, and finding out if a pattern can be found.
+Can we find one or several local optima, a recommended size of vocabulary, where does feature scaling really help?
+This would be a very interesting problem to solve, and very useful.
 
-- New algorithms: 
-I tried quickly the polynomial SVM kernels, just in case it brings interesting results. 
-The accuracy was surprinsingly a flat 50% in all the tests, and the running time was consistently very long, so it's not promising at all.
-I also took a "heavy" random forest with 500 trees.
+
+## Phase 4? Remaining questions
+
+- Algorithms tuning: I took standard settings for each algorithms. 
+I would be good to narrow down on specific algorithms and explore more the impact of different parameters, specially:
+    - Number of degrees for SVM Polynomial
+    - Distance type for Number of trees
+    - Number of neighbors for K-NN
+
+For the Random Forest, I took a "heavy" random forest with 500 trees. 300 would have been more standard.
 If 300 trees gave correct results for a much shorter computation time, then it could be considered for higher volumes.
 - Get more precise details on the computing time: pre-process the data, generating the spare matrix, fitting and predicting time.
 - A small digression: compare the values of dense and sparse matrices formats, and display it nicely in a graphic.
@@ -288,11 +298,11 @@ I'll most likely not work further on this exercise. Please send me feedbacks if 
 Basically, potential tracks for improvements I see are:
 
 1. Gather the result from a decently large sample of runs and find out the best settings, using a second level of ML algorithms (or why not a small NN). The most fun definitively.
-2. Re-train on 800 of the first dataset + 5000-20'000 of the second one and check the results.
-3. Find a relevant dataset with a good quality, and similar scale/distribution as the initial one.
-4. Try with new classifiers
-5. Of course the RNN NLP way: a simple recurrent neural network (RNN), next step with GRU cells.
-6. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
+1. Re-train on 800 of the first dataset + 5000-20'000 of the second one and check the results.
+1. Find a relevant dataset with a good quality, and similar scale/distribution as the initial one.
+1. Try with new classifiers
+1. Of course the RNN NLP way: a simple recurrent neural network (RNN), next step with GRU cells.
+1. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
 
 One very interesting thing to do, most likely not possible, would be to use a language encoding vector (e.g. Glove), as commonly used with NLP Recurrent Neural Networks.
 So a sparse one-hot vector could be represented by a much smaller vector and the computation time would be much better.
