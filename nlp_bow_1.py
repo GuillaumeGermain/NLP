@@ -28,14 +28,14 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.20, rand
 
 
 # Limit to specific algorithms
-#methods = None #all methods
-methods = ["logistic_regression", 
-           "k-nn", 
-           "naive_bayes", 
-           "random_forest", 
-           "svm_linear", 
-           "svm_rbf", 
-           "svm_sigmoid"]
+methods = None #all methods
+#methods = ["logistic_regression", 
+#           "k-nn", 
+#           "naive_bayes", 
+#           "random_forest", 
+#           "svm_linear", 
+#           "svm_rbf", 
+#           "svm_sigmoid"]
 # Feature scaling on that bag of words, not, or both?
 scales = None
 

@@ -67,7 +67,7 @@ def build_corpus(text_series):
     en_stop_words = set(stopwords.words('english'))
     for i in range(len(text_series)):
         review = re.sub('[^a-zA-Z]', ' ', text_series[i])
-        review = review.replace('\\n', ' ')
+        review = review.replace('\\n', ' ').replace('\\r', ' ')
         review = review.lower().split()
         review = [ps.stem(word) for word in review if word not in en_stop_words]
         review = ' '.join(review)
@@ -111,8 +111,9 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=None, scales=[False, True]
         # Print the table header
         print("METHODS:", " ".join(methods), "\nSCALING:", scales, "\n")
         print("METHOD".ljust(20, " "), 
-              "SCALED".ljust(10, " "), 
-              "ACCURACY".ljust(10, " "), 
+              "SCALED".ljust(10, " "),
+              "TRAIN ACC".ljust(10, " "), 
+              "TEST ACC".ljust(10, " "), 
               "F1".ljust(10, " "), 
               "PROCESSING_TIME")
         
@@ -179,12 +180,15 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=None, scales=[False, True]
                 classifier.fit(X_train, y_train)
             
             # Predict with current method
-            
             y_pred = classifier.predict(X_test)
+            
+            y_train_pred = classifier.predict(X_train)
+            train_accuracy = round(classifier.score(X_train, y_train), 4)
+            #print("train accuracy - score", classifier.score(X_train, y_train))
             
             # Format nicely the result and store it
             f1 = round(f1_score(y_test, y_pred), 4)
-            accuracy = round(accuracy_score(y_test, y_pred), 4)
+            test_accuracy = round(accuracy_score(y_test, y_pred), 4)
             precision = round(precision_score(y_test, y_pred), 4)
             recall = round(recall_score(y_test, y_pred), 4)
             cm = confusion_matrix(y_test, y_pred)
@@ -192,7 +196,8 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=None, scales=[False, True]
             
             dict_results = {"Method" : [method], 
                             "Scaled": scaled, 
-                            "Accuracy": accuracy,
+                            "TrainAccuracy": train_accuracy,
+                            "TestAccuracy": test_accuracy,
                             "Precision" : [precision], 
                             "Recall" : [recall], 
                             "F1" : [f1],
@@ -202,15 +207,17 @@ def ml_loop(X_train, y_train, X_test, y_test, methods=None, scales=[False, True]
             
             if verbose:
                 print(method.lower().ljust(20, " "), 
-                      str(scaled).ljust(10, " "), 
-                      str(accuracy).ljust(10, " "), 
+                      str(scaled).ljust(10, " "),
+                      str(train_accuracy).ljust(10, " "), 
+                      str(test_accuracy).ljust(10, " "), 
                       str(f1).ljust(10, " "), 
                       processing_time)
     
-    df_results = df_results.sort_values(by=('Accuracy'), ascending=False)
+    df_results = df_results.sort_values(by=('TrainAccuracy'), ascending=False)
     df_results = df_results[["Method", 
                              "Scaled", 
-                             "Accuracy", 
+                             "TrainAccuracy", 
+                             "TestAccuracy", 
                              "F1", 
                              "Precision",
                              "Recall", 

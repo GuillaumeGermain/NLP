@@ -288,10 +288,11 @@ One very interesting thing to do, most likely not possible, would be to use a la
 So a sparse one-hot vector could be represented by a much smaller vector and the computation time would be much better.
 
 # Last but not least
+## New experiment: integrate the "undefined" *** scores
 As I was doing minor changes on scripts, came a dumb idea: what about the 3* ratings.
 Are they really so "undecided", that they can't really be taken into account?
 The mean of this second dataset is rather between 3 and 4.
-So I ran the scripts again with 3* values included, converted into 0 (NOT LIKED). And... BINGO!
+So I ran the scripts again with *** values included, converted into 0 (NOT LIKED). And... BINGO!
 
 Already on small datasets and vocabularies, accuracy jumped up. 
 - Random forest accuracy jumped from 55 to 75%, first place, best accuracy with a small dataset!
@@ -299,8 +300,9 @@ Already on small datasets and vocabularies, accuracy jumped up.
 - SVM Linear had a similar accuracy improvement on the unscaled version
 - No improvement on Naive Bayes
 
-As for the phase 3, I used again the standard logistic regression intensively.
-Thanks to its performance and speed it enabled me to test many configurations in a short time.
+### Logistic regression new score: 76.6%
+As for the phase 3, I used again intensively the logistic regression.
+Its performance and speed enabled me to test many configurations in a short time.
 I could reach a better result of **76.6%** with 15000 reviews and a vocabulary of 2000 words.
 As before, it seemed that accuracy decreased at some point with more vocabulary and more training data.
 
@@ -308,15 +310,50 @@ SVM linear execution time exploded with this new dataset including 3*.
 SVM linear actually evaluates "edge" cases and tries to find a best separating line (here an hyperplane due to the high dimensionality).
 Such an algorithm had a hard time with these 3* reviews.
 
+### Better Data
 A quick check on the dataset summary showed that this change made both data distributions closer.
 The mean of the second dataset moved from 0.77 to 0.64, much closer to the 0.5 mean of the first one.
 This definitively helped to impprove accuracy.
 
-# Final conclusions
+## Is there overfitting?
+To compare usual ML techniques to neural networks, I couldn't stop wondering if they also overfit.
+So I added the training accuracy to the results to get an idea how effective the classifiers can fit the training data.
+
+A small sample here is a clear illustration of this
+
+```
+####################
+START ML_LOOP
+training set size: 10000
+vocabulary: 1500
+test set size: 1000 
+
+METHODS: logistic_regression k-nn naive_bayes random_forest svm_linear svm_rbf svm_sigmoid svm_poly 
+SCALING: [False, True] 
+
+METHOD               SCALED     TRAIN ACC  TEST ACC   F1         PROCESSING_TIME
+logistic_regression  False      0.8869     0.728      0.7703     0.8
+k-nn                 False      0.726      0.505      0.0275     419.52
+naive_bayes          False      0.771      0.513      0.6725     0.89
+random_forest        False      1.0        0.746      0.772      44.87
+svm_linear           False      0.8968     0.722      0.7668     300.06
+svm_rbf              False      0.807      0.501      0.6671     279.76
+svm_sigmoid          False      0.7584     0.5        0.6667     291.3
+```
+
+The result is very interesting. Most classifiers fit actually very well, some even around 99.5% or 100% (random forest with 500 trees without scaling in this case).
+Basically they ALL overfit. Their accuracy on the test set is significantly lower, which is definitively overfitting.
+
+One new question here, is how to add some kind of "regularisation" to prevent this.
+For neural networks, it's pretty easy: add L1 or L2 regularisation or dropout. Here it has to be checked for each classifier technique. 
+
+
+# Conclusions
 * Overall it's difficult to know in advance which algorithm will perform best.
 * Logistic regression is a good bet but some others might be suddenly better for a specific dataset/problem to solve.
 * Testing on smaller datasets is a good way to sort out the most promising ones.
 * The processing time of some algorithms will suddenly explode and you need to exclude them from the test.
+* Traditional ML can also fit very well the data and overfit to it.
 * Algorithms need a minimum of data to reach their potential then seem not to really benefit from more data.
 
 **Better data has more impact than better algorithms**

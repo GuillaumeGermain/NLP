@@ -45,24 +45,24 @@ TEST_SIZE = len(dataset)
 # Pre-cabled loops over many configurations to use directly
 
 # Limit to specific algorithms
-#methods = None # try all algos
-methods=["logistic_regression"
-         ,"k-nn"
-         ,"naive_bayes"
-         ,"random_forest"
-         #,"svm_linear"
-         #,"svm_rbf"
-         #,"svm_sigmoid"
-         #,"svm_poly"
-         ]
+methods = None # try all algos
+#methods=["logistic_regression"
+#         ,"k-nn"
+#         ,"naive_bayes"
+#         ,"random_forest"
+#         #,"svm_linear"
+#         #,"svm_rbf"
+#         #,"svm_sigmoid"
+#         #,"svm_poly"
+#         ]
+#
+#methods=["logistic_regression"]
 
-methods=["logistic_regression"]
 
+scales = None # try with and without feature
 
-scales = None # try with both feature scaling and without
-
-train_sizes = [15000, 18000]
-vocab_sizes = [1800, 2200]
+train_sizes = [10000]
+vocab_sizes = [1500]
 #train_sizes = [1000, 2000, 5000, 10000, 15000, 20000, 30000, len(dataset2)]
 #vocab_sizes = [500, 800, 1000, 1500, 1800, 2000, 2200]
 
