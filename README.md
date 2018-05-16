@@ -30,7 +30,8 @@ The data is in the Restaurant_Reviews.tsv file
 - Ratings (0/1) are predicted on a test set of 200 reviews.
 - Results are grouped in a table, sorted by descending accuracy. 
 
-The relevant script is ![nlp_bow_1.py](nlp_bow_1.py)
+The relevant script is [nlp_bow_1.py](nlp_bow_1.py)
+
 Results are printed on the console, and can also be reviewed in the df_results dataframe.
 
 ### Surprising results
@@ -55,7 +56,7 @@ Some methods perform better on a scaled input, others prefer the unscaled versio
 
 The time is displayed in seconds.
 
-![NLP Bag of Words Results](nlp_bow_1.png)
+[NLP Bag of Words Results](nlp_bow_1.png)
 
 ### Phase 1 Conclusions
 Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!!
