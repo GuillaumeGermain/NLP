@@ -339,13 +339,28 @@ random_forest        False      1.0        0.746      0.772      44.87
 svm_linear           False      0.8968     0.722      0.7668     300.06
 svm_rbf              False      0.807      0.501      0.6671     279.76
 svm_sigmoid          False      0.7584     0.5        0.6667     291.3
+svm_poly             False      0.6447     0.5        0.6667     352.27
+logistic_regression  True       0.8891     0.728      0.7675     3.65
+k-nn                 True       0.7752     0.522      0.1926     430.23
+naive_bayes          True       0.771      0.513      0.6725     0.93
+random_forest        True       1.0        0.746      0.772      45.99
+svm_linear           True       0.9021     0.724      0.7677     2607.1
+svm_rbf              True       0.9485     0.687      0.7587     297.16
+svm_sigmoid          True       0.8247     0.653      0.7401     206.16
+svm_poly             True       0.7891     0.5        0.6667     471.51
+
+END ML_LOOP
+####################
+TOTAL CPU TIME: 5752.77
 ```
 
 The result is very interesting. Most classifiers fit actually very well, some even around 99.5% or 100% (random forest with 500 trees without scaling in this case).
-Basically they ALL overfit. Their accuracy on the test set is significantly lower, which is definitively overfitting.
+Basically they ALL strongly overfit. Their accuracy on the test set is significantly lower, which is definitively overfitting.
 
-One new question here, is how to add some kind of "regularisation" to prevent this.
-For neural networks, it's pretty easy: add L1 or L2 regularisation or dropout. Here it has to be checked for each classifier technique. 
+One new question here, is how to add regularisation to prevent this.
+Early stopping seems to be part of the settings of each classifier (limit fitting to a specific number of iterations).
+Here regularisation options have to be checked for each classifier technique.
+For neural networks, it'd pretty easy: add L1 or L2 regularisation or dropout.
 
 
 # Conclusions
