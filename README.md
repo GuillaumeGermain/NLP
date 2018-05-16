@@ -3,9 +3,12 @@
 Check how effective "traditional" ML methods work in a simple context.
 1000 restaurant customer reviews are classified as 1 or 0, "Liked" or "Didn't like".
 
-To review the results, open the df_results after the script has run.
-
 Based on an exercise of ML A-Z on Udemy (Superdatascience)
+
+## Why?
+1. I wanted to see how effective traditional ML algorithms are compared to neural networks.
+1. Neural networks training was taking ages on my petty CPU/GPU!
+1. That was a good practice before having to buy a good external GPU or use an expensive GPU cloud.
 
 ## Phase 1:
 ### Algorithms:
@@ -27,12 +30,24 @@ The data is in the Restaurant_Reviews.tsv file
 - Ratings (0/1) are predicted on a test set of 200 reviews.
 - Results are grouped in a table, sorted by descending accuracy. 
 
+The relevant script is ![nlp_bow_1.py](nlp_bow_1.py)
+Results are printed on the console, and can also be reviewed in the df_results dataframe.
+
 ### Surprising results
 The TOP 3:
 
 1. SVM with sigmoid kernel and feature scaling
 1. Logistic regression with feature scaling
 1. SVM RBF with feature scaling
+
+```
+METHOD               SCALED     TRAIN ACC  TEST ACC   F1         CPU TIME (s)
+svm_sigmoid          True       0.9425     0.795      0.794      1.86
+logistic_regression  True       0.99       0.755      0.7586     0.28
+svm_rbf              True       0.9625     0.735      0.758      1.94
+...
+```
+
 
 The SVM algorithm with Sigmoid kernel is actually both best and worst in class. With feature scaling, it achieves the best result with 79.5% accuracy.
 Without scaling, it's broken and always predicts 0 (Didn't like) values, as shown in the confusion matrix.
@@ -53,7 +68,7 @@ To achieve a better performance with my classifiers, I planned to train them on 
 I found this one, with around 82000 reviews, on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
 As it turned out, it didn't work as expected, and I learned a few things on the way.
 
-This second dataset had around 82000 lines, and scores between 1 and 5.
+This second dataset had around 82000 reviews, and scores between 1 and 5.
 So I set values so:
 - 1-2 => 0
 - 4-5 => 1.
@@ -62,6 +77,8 @@ So I set values so:
 Doing so, it was quite an interesting exercise trying different configurations: vocabulary size (number of words considered) and training set sizes.
 
 ## Step by step execution
+The relevant script is ![nlp_2.py](nlp_2.py)
+
 I first run the classifiers with different training and vocabulary sizes to get a rough idea of the performance.
 Results after training on 5000 observations of the second dataset, and testing on 1000 observations of the first one
 ![Results with training on second dataset](nlp_2_results.png)
@@ -139,9 +156,10 @@ TOTAL CPU TIME: 3389.59
 
 ## At this point:
  
-- K-NN accuracy is getting worse with more data
+- K-NN accuracy is getting worse with more data => out
 - Naive Bayes still has a minor improvement, but is super-fast then cheap to keep
 - Random Forest is stagnating around 51-53% and bit long to process => out
+
 It seems reasonable to drop K-NN, Naive Bayes and Random Forest (acceptably fast but not accurate)
 The execution time of SVM linear was OK on a non-scaled input
 SVM linear "scaled" seemed to deserve a special treatment as it had the best prediction, but it gets so long to train that it's simply not possible to keep it.
@@ -167,11 +185,12 @@ This leads to a longer computation time, as each cell has to be processed, wheth
 Applying feature scaling changed the 0s by many mean values, but the information density was still the same (appalling).
 
 I tried a "sparse" matrix format, but on this volume, it did not seem to make a big difference.
-It made scripts more complex and Naive Bayes could not process those.
+Naive Bayes by the way could not process those, so it was needed to densify the matrix if in sparse format then re-densify it again. At the end I dropped this sparsity-handling.
 
 ### Computation Performance 
-The matrix size is basically training set size * vocabulary size. So it could vary from 1000 x 1000 (1 million cells) to 50'000 x 18'000 (900 millions cells!) depending on encoding choices.
-Scripts happened to run quite long. So I ensured that intermediate results got printed during the processing.
+The matrix size is basically training set size * vocabulary size. 
+So it could vary from 1000 x 1000 (1 million cells) to 50'000 x 18'000 (900 millions cells) depending on encoding choices.
+Scripts ran longer and longer, so I ensured that intermediate results got printed during the processing.
 It became my main tool to evaluate results.
 
 First, running with around 18K words and not too small datasets, it took around 25 minutes to process all the methods.
@@ -215,14 +234,13 @@ Logistic regression (scaled) and SVM linear (scaled) showed clearly the best res
 Logistic Regression was by far the fastest of both.
 
 At the end I automated the tests with different settings (training set size and vocabulary size), so they can be called very quickly in a new context (new project or Hackathon).
-One case could be Spam Recognition, where Naive Bayes usually shines.
 
 I used this to test logistic regression with many different configurations, vocabulary size and training set size.
 
 ## Asymptotic complexity:
 Logistic regression complexity is most likely logarithmic-like as doubling the size seems to translate to a constant increase of execution time.
 
-SVM linear computation time is... very bad: from 10'000 to 20'000 lines, execution jumps from 25 to 321s.
+SVM linear computation time is... very bad: from 10'000 to 20'000 observations, execution jumps from 25 to 321s.
 This SVM linear provided by skikit seems to have beetween O(n3) and o(n4) asymptotic complexity.
 I could not use it on even half of the whole second dataset because it was never completing.
 It was a pity to discard it as it had regularly a better accuracy than logistic regression.
@@ -255,41 +273,8 @@ Can we find one or several local optima, a recommended size of vocabulary, where
 This would be a very interesting problem to solve, and very useful.
 
 
-# Phase 4? Remaining questions
-- Algorithms tuning: I took standard settings for each algorithms. 
-I would be good to narrow down on specific algorithms and explore more the impact of different parameters, specially:
-    - Number of degrees for SVM Polynomial
-    - Distance type for Number of trees
-    - Number of neighbors for K-NN
-
-For the Random Forest, I took a "heavy" random forest with 500 trees. 300 would have been more standard.
-If 300 trees gave correct results for a much shorter computation time, then it could be considered for higher volumes.
-- Get more precise details on the computing time: pre-process the data, generating the spare matrix, fitting and predicting time.
-- A small digression: compare the values of dense and sparse matrices formats, and display it nicely in a graphic.
-It would also be interesting to check more precisely the impact on computation time.
-- Store results from different settings in a single dataframe, including the run settings (train size, vocab size, scaling or not). 
-- Test on EXACTLY the same test set of 200 observations, as when classifiers were trained only on 800 observations of the first dataset.
-Just to be sure that this is not biasing the result.
-
-## Next steps for improvement
-I'll most likely not work further on this exercise. Please send me feedbacks if you do!
-
-Basically, potential tracks for improvements I see are:
-
-1. Add the accuracy on the training set to see if there is overfitting
-1. Gather the result from a decently large sample of runs and find out the best settings, using a second level of ML algorithms (or why not a small NN). The most fun definitively.
-1. Re-train on 800 of the first dataset + 5000-20'000 of the second one and check the results.
-1. Find a relevant dataset with a good quality, and similar scale/distribution as the initial one.
-1. Try with new classifiers
-1. Of course the RNN NLP way: a simple recurrent neural network (RNN), next step with GRU cells.
-1. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
-
-One very interesting thing to do, most likely not possible, would be to use a language encoding vector (e.g. Glove), as commonly used with NLP Recurrent Neural Networks.
-So a sparse one-hot vector could be represented by a much smaller vector and the computation time would be much better.
-
-# Last but not least
-## New experiment: integrate the "undefined" *** scores
-As I was doing minor changes on scripts, came a dumb idea: what about the 3* ratings.
+# Phase 4 - New experiment: integrate the "undefined" *** scores
+As I was doing minor changes on scripts, came a naive idea: what about the 3* ratings?
 Are they really so "undecided", that they can't really be taken into account?
 The mean of this second dataset is rather between 3 and 4.
 So I ran the scripts again with *** values included, converted into 0 (NOT LIKED). And... BINGO!
@@ -354,16 +339,20 @@ END ML_LOOP
 TOTAL CPU TIME: 5752.77
 ```
 
-The result is very interesting. Most classifiers fit actually very well, some even around 99.5% or 100% (random forest with 500 trees without scaling in this case).
-Basically they ALL strongly overfit. Their accuracy on the test set is significantly lower, which is definitively overfitting.
+The result is very interesting.
+Most classifiers fit actually very well, specially Random forest, 500 trees, no scaling has 100% accuracy.
+Logistic regression is 99.5% accurate on the training set.
+But most accuracies drop 13-25% on the test set. This is significantly lower and definitively overfitting.
 
-One new question here, is how to add regularisation to prevent this.
+So basically they ALL overfit. They also contain mechanisms to contain overfitting, as the sklearn documentation showed.
+For instance, logistic regression applies L2 regularisation by default. L1 is also available.
+
+We have low bias very good, but variance is a problem.
+One new question here now, is how to increase this regularisation.
 Early stopping seems to be part of the settings of each classifier (limit fitting to a specific number of iterations).
 Here regularisation options have to be checked for each classifier technique.
-For neural networks, it'd pretty easy: add L1 or L2 regularisation or dropout.
 
-
-# Conclusions
+# Phase 4 Conclusions
 * Overall it's difficult to know in advance which algorithm will perform best.
 * Logistic regression is a good bet but some others might be suddenly better for a specific dataset/problem to solve.
 * Testing on smaller datasets is a good way to sort out the most promising ones.
@@ -372,4 +361,42 @@ For neural networks, it'd pretty easy: add L1 or L2 regularisation or dropout.
 * Algorithms need a minimum of data to reach their potential then seem not to really benefit from more data.
 
 **Better data has more impact than better algorithms**
+
+
+
+# Remaining questions
+- Algorithms tuning: I took standard settings for each algorithms. 
+It would be good to narrow down on specific algorithms and explore more the impact of different parameters, specially:
+    - Number of degrees for SVM Polynomial
+    - Distance type (Manhattan instead of Euclidian)
+    - Number of neighbors for K-NN
+    - Number of trees for Random Forest
+    - Limit the number of iteration to accelerate the process, at a performance cost.
+
+For the Random Forest, I took a "heavy" random forest with 500 trees. 300 would have been more standard, and faster.
+If performance was similar, the shorter computation time would be convenient to test it on higher volumes.
+- Get more precise details on the computing time: pre-process the data, generating the spare matrix, fitting and predicting time.
+- A small digression: compare the values of dense and sparse matrices formats, and display it nicely in a graphic.
+It would also be interesting to check more precisely the impact of the sparse matrix format on computation time.
+- Store results from different settings in a single dataframe, including the run settings (train size, vocab size, scaling or not). 
+- Test on EXACTLY the same test set of 200 observations, as when classifiers were trained only on 800 observations of the first dataset.
+Just to be sure that this is not biasing the result.
+
+## Next steps for improvement
+I'll most likely not work further on this exercise. Please send me feedbacks if you do!
+
+Basically, potential tracks for improvements I see are:
+
+1. Add the accuracy on the training set to see if there is overfitting
+1. Gather the result from a decently large sample of runs and find out the best settings, using a second level of ML algorithms (or why not a small NN). The most fun definitively.
+1. Re-train on 800 of the first dataset + 5000-20'000 of the second one and check the results.
+1. Find a relevant dataset with a good quality, and similar scale/distribution as the initial one.
+1. Try with new classifiers
+1. Of course the RNN NLP way: a simple recurrent neural network (RNN), next step with GRU cells.
+1. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
+
+One very interesting thing to do, most likely not possible, would be to use a language encoding vector (e.g. Glove), as commonly used with NLP Recurrent Neural Networks.
+So a sparse one-hot vector could be represented by a much smaller vector and the computation time would be much better.
+
+
 
