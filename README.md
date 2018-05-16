@@ -30,7 +30,7 @@ The data is in the Restaurant_Reviews.tsv file
 - Ratings (0/1) are predicted on a test set of 200 reviews.
 - Results are grouped in a table, sorted by descending accuracy. 
 
-The relevant script is nlp_bow_1.py
+The relevant script is [nlp_bow_1.py](https://github.com/GuillaumeGermain/NLP_bag_of_words/blob/master/nlp_bow_1.py)
 
 Results are printed on the console, and can also be reviewed in the df_results dataframe.
 
@@ -56,7 +56,7 @@ Some methods perform better on a scaled input, others prefer the unscaled versio
 
 The time is displayed in seconds.
 
-[NLP Bag of Words Results](nlp_bow_1.png)
+![NLP Bag of Words Results](nlp_bow_1.png)
 
 ### Phase 1 Conclusions
 Almost 80% accuracy after training on a sample of 800 reviews, is surprisingly good!!
@@ -78,7 +78,7 @@ So I set values so:
 Doing so, it was quite an interesting exercise trying different configurations: vocabulary size (number of words considered) and training set sizes.
 
 ## Step by step execution
-The relevant script is nlp_2.py
+The relevant script is [nlp_2.py](https://github.com/GuillaumeGermain/NLP_bag_of_words/blob/master/nlp_2.py)
 
 I first run the classifiers with different training and vocabulary sizes to get a rough idea of the performance.
 Results after training on 5000 observations of the second dataset, and testing on 1000 observations of the first one
