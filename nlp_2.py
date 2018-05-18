@@ -61,7 +61,7 @@ methods = None # try all algos
 
 scales = None # try with and without feature
 
-train_sizes = [10000]
+train_sizes = [5000]
 vocab_sizes = [1500]
 #train_sizes = [1000, 2000, 5000, 10000, 15000, 20000, 30000, len(dataset2)]
 #vocab_sizes = [500, 800, 1000, 1500, 1800, 2000, 2200]
@@ -69,9 +69,6 @@ vocab_sizes = [1500]
 
 for train_size in train_sizes:
     for vocab_size in vocab_sizes:
-        #train_size = 1000
-        #vocab_size = 500
-        
         dataset_work = dataset.append(dataset2[:train_size], ignore_index=True)
         corpus = build_corpus(dataset_work['Review'])
         

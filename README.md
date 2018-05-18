@@ -388,7 +388,6 @@ I'll most likely not work further on this exercise. Please send me feedbacks if 
 
 Basically, potential tracks for improvements I see are:
 
-1. Add the accuracy on the training set to see if there is overfitting
 1. Gather the result from a decently large sample of runs and find out the best settings, using a second level of ML algorithms (or why not a small NN). The most fun definitively.
 1. Re-train on 800 of the first dataset + 5000-20'000 of the second one and check the results.
 1. Find a relevant dataset with a good quality, and similar scale/distribution as the initial one.
@@ -397,7 +396,10 @@ Basically, potential tracks for improvements I see are:
 1. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
 
 One very interesting thing to do, most likely not possible, would be to use a language encoding vector (e.g. Glove), as commonly used with NLP Recurrent Neural Networks.
-So a sparse one-hot vector could be represented by a much smaller vector and the computation time would be much better.
+So the sparse one-hot vector would be represented by a dense matrix of variable length on the first dimension.
+Except if we simply use the length of the longest sentence and pad other sentences with 0s.
+Overall the reviews encoding would be of rank 3.
+The computation time might be better.
 
 
 
