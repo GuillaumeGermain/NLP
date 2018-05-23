@@ -5,17 +5,16 @@ Check how effective "traditional" ML methods work in a simple context.
 
 Based on an exercise of ML A-Z on Udemy (Superdatascience)
 
-## Why?
+### Why?
 1. I wanted to see how effective traditional ML algorithms are compared to neural networks.
 1. Neural networks training was taking ages on my petty CPU/GPU!
 1. That was a good practice before having to buy a good external GPU or use an expensive GPU cloud.
 
-## Phase 1:
 ### Algorithms:
-* SVM (linear, sigmoid and RBF kernels)
+* Logistic Regression
 * Naive Bayes
 * K-NN
-* logistic regression
+* SVM (linear, sigmoid and RBF kernels)
 
 ### Process:
 
@@ -27,8 +26,11 @@ The data is in the Restaurant_Reviews.tsv file
 E.g. all words like, likes, liked, liking, likable, etc. become "like".
 - Group resulting reviews into a rough "Bag of Words"
 - Tokenize words of each review into as sparse vector. Only the most used words are kept to reduce sparsity and reduce the classifiers computation cost. The training set becomes a very sparse matrix, the "Bag of Words".
-- Process this bag of words with "traditional" ML techniques (with and without feature scaling).
+
+Then the real stuff:
+- Use a battery of "traditional" ML techniques to process this bag of words.
 The training/test set sizes are a typical 80%/20% split (800/200).
+Training are also done without and with feature scaling, which has an impact on the resulting accuracy.
 - Predict ratings (0/1) on the 200 reviews of the test set.
 - Group results in a dataframe, sorted by descending accuracy. 
 
@@ -36,8 +38,8 @@ The relevant script is [nlp_bow_1.py](https://github.com/GuillaumeGermain/NLP_ba
 
 Results can be reviewed in the df_results dataframe, and are also printed on the console.
 
-### Surprising results
-The TOP 3:
+## Phase 1: Surprising results
+TOP 3 algorithms:
 
 1. SVM with sigmoid kernel and feature scaling
 1. Logistic regression with feature scaling
@@ -66,24 +68,25 @@ Specially with such a rough "bag of words" method, not taking into account the w
 Now, that'd be nice to achieve a better accuracy, like 90%.
 
 
-# Phase 2: Turbocharge the classifiers
+## Phase 2: Turbocharge the classifiers
 To achieve a better performance with my classifiers, I planned to train them on a bigget dataset.
-I found this one, with around 82000 reviews, on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews")
+I found this one, with around 82000 reviews, on [Kaggle](https://www.kaggle.com/c/restaurant-reviews/data "Restaurant reviews").
 As it turned out, it didn't work as expected, and I learned a few things on the way.
 
 This second dataset had around 82000 reviews, and scores between 1 and 5.
 So I set values so:
-- 1-2 => 0
+- 1-2 => 0.
 - 4-5 => 1.
-- 3 => discarded: as they can't really be considered as "liked" or not.
+- 3 => discarded, as they could not really be considered as "liked" or not.
 
-Doing so, it was quite an interesting exercise trying different configurations: vocabulary size (number of words considered) and training set sizes.
+Doing so, it was an interesting exercise trying different configurations: vocabulary size (number of words considered) and training set sizes.
 
-## Step by step execution
+### Step by step execution
 The relevant script is [nlp_2.py](https://github.com/GuillaumeGermain/NLP_bag_of_words/blob/master/nlp_2.py)
 
 I first ran the classifiers with different training and vocabulary sizes to get a rough idea of the performance.
 Results after training on 5000 observations of the second dataset, and testing on 1000 observations of the first one
+
 ![Results with training on second dataset](nlp_2_results.png)
 
 ```
@@ -117,7 +120,7 @@ END ML_LOOP
 TOTAL CPU TIME: 1021.39
 
 ```
-## First intermediate results
+### First intermediate results
 SVM linear and logistic regression looked like promising classifiers.
 - SVM linear was the best at this point, but its computation time was getting problematic, specially on the scaled input.
 I actually dropped it later as it was way too long to process.
@@ -157,7 +160,7 @@ END ML_LOOP
 TOTAL CPU TIME: 3389.59
 ```
 
-## At this point:
+### At this point:
  
 - K-NN accuracy was getting worse with more data! => out
 - Naive Bayes was super-fast but was only slighly improving
@@ -173,15 +176,15 @@ And so on...
 
 At the end the big winner was... **logistic regression**. SVM linear had better results at first but just didn't scale up.
 
-## Lessons learned
+### Lessons learned
 
-### First mistakes!
+#### First mistakes!
 First, I mixed both datasets and trained and tested both classifiers on this.
 This lead to amazingly good results, but it was not representative of the performance on the initial test set, what actually really mattered.
 
 Second, I used the F1 score as the main metric, accuracy turned out to be more relevant as the distribution of 0/1 was quite balanced.
 
-### Sparsity
+#### Sparsity
 The matrix after tokenization was definitely very sparse. The information density is very low, the matrix size was HUGE compared to the really information contained. 
 This lead to longer computation time.
 Applying feature scaling changed the 0s by many mean values, but it did of course not change the matrix size.
@@ -189,7 +192,7 @@ Applying feature scaling changed the 0s by many mean values, but it did of cours
 To improve the computing time, I tried a "sparse" matrix format. It did not seem to make a big difference, so I dropped this feature.
 Naive Bayes could by the way not process this sparse matrix format, so I had to densify the matrix before and re-sparse it later.
 
-### Computation Performance 
+#### Computation Performance 
 The matrix size was basically training set size * vocabulary size.
 So it could vary from 1000 x 1000 (1 million cells) to 50'000 x 18'000 (900 millions cells).
 As scripts ran longer and longer, I started to print intermediate results during the processing.
@@ -203,11 +206,11 @@ SVM RBF and SVM Sigmoid seemed to be quadratic o(n2), K-NN linear, logistic regr
 I didn't plan to really improve their speed, as I was mainly using standard parameters of these traditional algorithms.
 Trying to writing them in Python was not an option, and their implementation in C/C++ was definitively better than what I could have done myself.
 
-### Evaluation metric
+#### Evaluation metric
 At first I used F1 score to select the best classifiers. 
 As the 0-1 class distributions are quite balanced in both datasets (around 40-60%), the accuracy was actually more relevant and I changed all the scripts accordingly. 
 
-### Dataset quality and distribution
+#### Dataset quality and distribution
 Finally, I compared the data distribution:
 - Liked scores: the second dataset had a relatively higher mean (0.67 vs 0.5) and smaller standard deviation (0.3 vs 0.5)
 The first dataset was indeed quite extreme in its values, either 0 or 1, the second had a finer scale.
@@ -229,7 +232,7 @@ The performance was much better when training classifiers with only a part of th
 The naive assumption that training ML classifiers on a bigger dataset would automatically bring better results, was indeed very naive.
 
 
-# Phase 3: More research
+## Phase 3: More research
 Still unsatisfied with these results, I wanted to find out if I could get better, even though the chosen dataset was not the best one to train my classifiers.
 I played a bit with the sparse matrix format for specific algorithms (except Naive Bayes which accepts only standard numpy matrices).
 All in all, most algorithms didn't perform well when trained on the new dataset.
@@ -241,7 +244,7 @@ At this point I automated the tests with different settings (training set size a
 
 I used this to test logistic regression with many different configurations, vocabulary size and training set size.
 
-## Asymptotic complexity:
+### Asymptotic complexity:
 Logistic regression complexity was most likely logarithmic-like as doubling the size seemed to translate to a constant increase of execution time.
 
 SVM linear computation time was very bad: from 10'000 to 20'000 observations, execution jumps from 25 to 321s.
@@ -251,7 +254,7 @@ It was a pity to discard it as it had regularly a better accuracy than logistic 
 
 Overall, scaling the input seemed to slow down most algorithms, but brought sometime better accuracies.
 
-# Phase 3 conclusions
+## Phase 3 conclusions
 Logistic regression was by far the best combination of accuracy and running time. 
 The best results I could get was 74.2%, with 35'000 observations, scaling and a vocabulary of 4500.
 
@@ -276,13 +279,13 @@ Can we find one or several local optima, a recommended size of vocabulary, where
 This would be a very interesting problem to solve, and very useful.
 
 
-# Phase 4 - New experiment: integrate the "undefined" *** scores
-As I was doing minor changes on scripts, came a naive idea: what about the 3* ratings?
-Are they really so "undecided", that they can't really be taken into account?
+## Phase 4 - New experiment: integrate back the undefined "3*" scores
+As I was doing minor changes on scripts, came a naive idea: what about these 3* ratings?
+Are they really so undecided, that they can't really be taken into account?
 The mean of this second dataset is rather between 3 and 4.
-So I ran the scripts again with *** values included, converted into 0 (NOT LIKED). And... BINGO!
+So I ran the scripts again including the 3* values, converted into 0 (NOT LIKED). And... BINGO!
 
-Already on small datasets and vocabularies, accuracy jumped up. 
+Accuracy clearly jumped up, already on small datasets and vocabularies sizes. 
 - Random forest accuracy jumped from 55 to 75%, first place, best accuracy with a small dataset!
 - Logistic regression increased from 67 to 71% (scaled and not scaled)
 - SVM Linear had a similar accuracy improvement on the unscaled version
@@ -298,12 +301,12 @@ SVM linear execution time exploded with this new dataset including 3*.
 SVM linear actually evaluates "edge" cases and tries to find a best separating line (here an hyperplane due to the high dimensionality).
 Such an algorithm had a hard time with these 3* reviews.
 
-### Better Data
+### It improved the dataset quality
 A quick check on the dataset summary showed that this change made both data distributions closer.
 The mean of the second dataset moved from 0.77 to 0.64, much closer to the 0.5 mean of the first one.
 This definitively helped to impprove accuracy.
 
-## Is there overfitting?
+### Is there overfitting?
 To compare usual ML techniques to neural networks, I couldn't stop wondering if they also overfit.
 So I added the training accuracy to the results to get an idea how effective the classifiers can fit the training data.
 
@@ -355,7 +358,7 @@ One new question here now, is how to increase this regularisation.
 Early stopping seems to be part of the settings of each classifier (limit fitting to a specific number of iterations).
 Here regularisation options have to be checked for each classifier technique.
 
-# Phase 4 Conclusions
+## Conclusions
 * Overall it's difficult to know in advance which algorithm will perform best.
 * Logistic regression is a good bet but some others might be suddenly better for a specific dataset/problem to solve.
 * Testing on smaller datasets is a good way to sort out the most promising ones.
@@ -367,7 +370,7 @@ Here regularisation options have to be checked for each classifier technique.
 
 
 
-# Remaining questions
+## Remaining questions
 - Algorithms tuning: I took standard settings for each algorithms. 
 It would be good to narrow down on specific algorithms and explore more the impact of different parameters, for instance:
     - Distance type (Manhattan instead of Euclidian)
@@ -390,18 +393,17 @@ I'll most likely not work further on this exercise. Please send me feedbacks if 
 
 Basically, potential tracks for improvements I see are:
 
-1. Gather the result from a decently large sample of runs and find out the best settings, using a second level of ML algorithms (or why not a small NN). The most fun definitively.
-1. Re-train on 800 of the first dataset + 5000-20'000 of the second one and check the results.
-1. Find a relevant dataset with a good quality, and similar scale/distribution as the initial one.
+1. Gathering results from a decently large sample of runs and find out the best settings, using a second level of ML algorithms (or why not a small NN). The most fun definitively.
+1. Reinject the reviews 800 of the first dataset into the training set before fitting and check the results.
+1. Find new relevant datasets with a good quality, and similar scale/distribution as the initial one.
 1. Try with new classifiers
 1. Of course the RNN NLP way: a simple recurrent neural network (RNN), next step with GRU cells.
 1. Try different a fully different approach of bag of words: 2-grams or 3-grams would be promising
 
-One very interesting thing to do, most likely not possible, would be to use a language encoding vector (e.g. Glove), as commonly used with NLP Recurrent Neural Networks.
+One very interesting thing to do, would be to use a language encoding vector (e.g. Glove), as commonly used with NLP Recurrent Neural Networks.
 So the sparse one-hot vector would be represented by a dense matrix of variable length on the first dimension.
 Except if we simply use the length of the longest sentence and pad other sentences with 0s.
 Overall the reviews encoding would be of rank 3.
 The computation time might be better.
 
-
-
+This project is followed by this [one using RNN](https://github.com/GuillaumeGermain/NLP_RNN).
